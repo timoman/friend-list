@@ -23,7 +23,10 @@ public class MainActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setListAdapter(new ArrayAdapter<String>(this, R.layout.friend_list_item, new String[]{"Hello", "world"}));
+        setListAdapter(
+            new ArrayAdapter<String>(this, R.layout.friend_list_item,
+                    new String[]{"Hello", "world"})
+        );
 
         ListView lv = getListView();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
