@@ -13,6 +13,7 @@ import android.view.ViewGroup;
 import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
+import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -23,10 +24,10 @@ public class MainActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        setListAdapter(
-            new ArrayAdapter<String>(this, R.layout.friend_list_item,
-                    new String[]{"Hello", "world"})
-        );
+        ListAdapter adapter =
+                new ArrayAdapter<String>(this, R.layout.friend_list_item,
+                        new String[]{"Hello", "world"});
+        setListAdapter(adapter);
 
         ListView lv = getListView();
         lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
@@ -37,6 +38,7 @@ public class MainActivity extends ListActivity {
                         ((TextView) view).getText(), Toast.LENGTH_SHORT).show();
             }
         });
+
     }
 
 
@@ -56,6 +58,8 @@ public class MainActivity extends ListActivity {
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return true;
+            case R.id.action_add:
+                // TODO: trigger add contact flow
         }
         return super.onOptionsItemSelected(item);
     }
