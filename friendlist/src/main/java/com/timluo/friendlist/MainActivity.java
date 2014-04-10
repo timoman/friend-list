@@ -1,15 +1,12 @@
 package com.timluo.friendlist;
 
-import android.app.Fragment;
 import android.app.ListActivity;
 import android.os.Bundle;
 import android.view.ContextMenu;
-import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
-import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
@@ -17,9 +14,7 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import com.google.common.collect.Lists;
 
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
@@ -30,12 +25,9 @@ public class MainActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        String[] strings = new String[]{"Hello", "world"};
-        List<String> list = new ArrayList<String>();
-        list.addAll(Arrays.asList(strings));
         ListAdapter adapter =
                 new ArrayAdapter<String>(this, R.layout.friend_list_item,
-                        list);
+                        Lists.newArrayList("Hello", "world"));
         setListAdapter(adapter);
 
         ListView listView = getListView();
@@ -52,6 +44,7 @@ public class MainActivity extends ListActivity {
         registerForContextMenu(listView);
     }
 
+    /* Contacts context menu */
     @Override
     public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
         super.onCreateContextMenu(menu, v, menuInfo);
@@ -100,7 +93,11 @@ public class MainActivity extends ListActivity {
             }
         });
     }
+    /* End Contacts context menu */
 
+
+
+    /* Action bar option menu */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         
@@ -123,20 +120,6 @@ public class MainActivity extends ListActivity {
         return super.onOptionsItemSelected(item);
     }
 
-    /**
-     * A placeholder fragment containing a simple view.
-     */
-    public static class PlaceholderFragment extends Fragment {
-
-        public PlaceholderFragment() {
-        }
-
-        @Override
-        public View onCreateView(LayoutInflater inflater, ViewGroup container,
-                Bundle savedInstanceState) {
-            View rootView = inflater.inflate(R.layout.fragment_main, container, false);
-            return rootView;
-        }
-    }
+    /* End action bar option menu */
 
 }

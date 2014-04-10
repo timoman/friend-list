@@ -33,4 +33,5 @@ dependencies {
     compile ('com.fortysevendeg.swipelistview:swipelistview:1.0-SNAPSHOT@aar') {
         transitive = true
     }
+    compile group: 'com.google.guava', name: 'guava', version: '12.0'
 }
