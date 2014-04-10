@@ -6,4 +6,8 @@
     <string name="action_add_contact">Add Contact</string>
     <string name="action_settings">Settings</string>
 
+    <string name="delete_contact">Delete</string>
+    <string name="bump_contact">Bump</string>
+    <string name="edit_contact">Edit details</string>
+
 </resources>

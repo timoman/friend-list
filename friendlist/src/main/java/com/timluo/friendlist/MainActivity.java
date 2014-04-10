@@ -1,16 +1,15 @@
 package com.timluo.friendlist;
 
-import android.app.Activity;
-import android.app.ActionBar;
 import android.app.Fragment;
 import android.app.ListActivity;
 import android.os.Bundle;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
 import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
-import android.os.Build;
 import android.widget.AdapterView;
 import android.widget.ArrayAdapter;
 import android.widget.ListAdapter;
@@ -18,19 +17,30 @@ import android.widget.ListView;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
+
+import static android.widget.AdapterView.AdapterContextMenuInfo;
+
 public class MainActivity extends ListActivity {
+    private static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        String[] strings = new String[]{"Hello", "world"};
+        List<String> list = new ArrayList<String>();
+        list.addAll(Arrays.asList(strings));
         ListAdapter adapter =
                 new ArrayAdapter<String>(this, R.layout.friend_list_item,
-                        new String[]{"Hello", "world"});
+                        list);
         setListAdapter(adapter);
 
-        ListView lv = getListView();
-        lv.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+        ListView listView = getListView();
+
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
             public void onItemClick(AdapterView<?> parent, View view,
                                     int position, long id) {
 
@@ -39,8 +49,57 @@ public class MainActivity extends ListActivity {
             }
         });
 
+        registerForContextMenu(listView);
     }
 
+    @Override
+    public void onCreateContextMenu(ContextMenu menu, View v, ContextMenu.ContextMenuInfo menuInfo) {
+        super.onCreateContextMenu(menu, v, menuInfo);
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.contact_menu, menu);
+    }
+
+    @Override
+    public boolean onContextItemSelected(MenuItem item) {
+        AdapterContextMenuInfo info = (AdapterContextMenuInfo) item.getMenuInfo();
+        String contact = (String) getListAdapter().getItem(info.position);
+        switch (item.getItemId()) {
+            case R.id.delete_contact:
+                deleteContact(info.position);
+                return true;
+            case R.id.edit_contact:
+                editContact(info.position);
+                return true;
+            case R.id.bump_contact:
+                bumpContact(info.position);
+                return true;
+        }
+        return super.onContextItemSelected(item);
+    }
+
+    void deleteContact(int position) {
+        @SuppressWarnings("unchecked")
+        ArrayAdapter<String> adapter = ((ArrayAdapter<String>) getListAdapter());
+        adapter.remove(adapter.getItem(position));
+    }
+
+    void editContact(int position) {
+        Toast.makeText(getApplicationContext(), "Edit Contact", Toast.LENGTH_SHORT).show();
+    }
+
+    void bumpContact(int position) {
+        @SuppressWarnings("unchecked")
+        ArrayAdapter<String> adapter = ((ArrayAdapter<String>) getListAdapter());
+        String contact = adapter.getItem(position);
+        // Remove from list, then add to end
+        adapter.remove(contact);
+        adapter.add(contact);
+        this.runOnUiThread(new Runnable() {
+            public void run() {
+                ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
+            }
+        });
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
