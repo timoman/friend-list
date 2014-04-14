@@ -3,7 +3,11 @@ package com.timluo.friendlist;
 import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.database.Cursor;
+import android.net.Uri;
 import android.os.Bundle;
+import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -19,6 +23,7 @@ import android.widget.ListView;
 import java.util.ArrayList;
 import java.util.List;
 
+import static android.provider.ContactsContract.Contacts;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MainActivity extends ListActivity {
@@ -29,8 +34,6 @@ public class MainActivity extends ListActivity {
         super.onCreate(savedInstanceState);
 
         List<String> list = new ArrayList<String>();
-        list.add("Hello");
-        list.add("world");
         ListAdapter adapter =
                 new ArrayAdapter<String>(this, R.layout.friend_list_item, list);
         setListAdapter(adapter);
@@ -121,33 +124,33 @@ public class MainActivity extends ListActivity {
     }
     /* End Contacts context menu */
 
-    private void createContact() {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Add Contact");
-        alert.setMessage("Enter a name");
+    private static final int CONTACT_PICKER_REQUEST = 1001;
+    private void addContact() {
+        Intent contactPickerIntent = new Intent(Intent.ACTION_PICK,
+                Contacts.CONTENT_URI);
+        startActivityForResult(contactPickerIntent, CONTACT_PICKER_REQUEST);
+    }
 
-        final EditText input = new EditText(this);
-        alert.setView(input);
-
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                String value = input.getText().toString();
-                // Do something with value!
-                Log.i(TAG, value);
-                ArrayAdapter<String> adapter = getArrayAdapter();
-                if (value != null && !value.isEmpty()) {
-                    adapter.add(value);
-                    refreshListAdapter();
-                }
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        if (resultCode == RESULT_OK) {
+            switch (requestCode) {
+                case CONTACT_PICKER_REQUEST:
+                    Uri contactData = data.getData();
+                    Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
+                    if (cursor.moveToFirst()) {
+                        String name =
+                                cursor.getString(
+                                        cursor.getColumnIndex(
+                                                ContactsContract.Contacts.DISPLAY_NAME));
+                        getArrayAdapter().add(name);
+                    }
+                    break;
             }
-        });
 
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Canceled.
-            }
-        });
-        alert.show();
+        } else {
+            Log.w(TAG, String.format("Warning: result not OK for requestCode: %d", requestCode));
+        }
     }
 
     private ArrayAdapter<String> getArrayAdapter() {
@@ -183,7 +186,7 @@ public class MainActivity extends ListActivity {
             case R.id.action_settings:
                 return true;
             case R.id.action_add:
-                createContact();
+                addContact();
         }
         return super.onOptionsItemSelected(item);
     }
