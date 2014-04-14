@@ -15,8 +15,6 @@ import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-import android.widget.TextView;
-import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -81,10 +79,13 @@ public class MainActivity extends ListActivity {
 
     void editContact(final int position) {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Add Contact");
+        alert.setTitle("Edit Contact");
         alert.setMessage("Enter a name");
 
         final EditText input = new EditText(this);
+        String currentContact = getArrayAdapter().getItem(position);
+        input.setText(currentContact);
+        input.setSelection(currentContact.length());
         alert.setView(input);
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
@@ -119,8 +120,6 @@ public class MainActivity extends ListActivity {
         refreshListAdapter();
     }
     /* End Contacts context menu */
-
-
 
     private void createContact() {
         AlertDialog.Builder alert = new AlertDialog.Builder(this);
