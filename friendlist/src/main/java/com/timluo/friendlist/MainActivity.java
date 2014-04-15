@@ -33,9 +33,9 @@ public class MainActivity extends ListActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        List<String> list = new ArrayList<String>();
+        List<Contact> list = new ArrayList<Contact>();
         ListAdapter adapter =
-                new ArrayAdapter<String>(this, R.layout.friend_list_item, list);
+                new ContactAdapter(this, R.layout.friend_list_item, list);
         setListAdapter(adapter);
 
         ListView listView = getListView();
@@ -75,8 +75,7 @@ public class MainActivity extends ListActivity {
     }
 
     void deleteContact(int position) {
-        @SuppressWarnings("unchecked")
-        ArrayAdapter<String> adapter = ((ArrayAdapter<String>) getListAdapter());
+        ContactAdapter adapter = getContactAdapter();
         adapter.remove(adapter.getItem(position));
     }
 
@@ -86,22 +85,26 @@ public class MainActivity extends ListActivity {
         alert.setMessage("Enter a name");
 
         final EditText input = new EditText(this);
-        String currentContact = getArrayAdapter().getItem(position);
-        input.setText(currentContact);
-        input.setSelection(currentContact.length());
+        Contact currentContact = getContactAdapter().getItem(position);
+        String contactDisplay = currentContact.displayName;
+        input.setText(contactDisplay);
+        input.setSelection(contactDisplay.length());
         alert.setView(input);
 
         alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
             public void onClick(DialogInterface dialog, int whichButton) {
+                ContactAdapter adapter = getContactAdapter();
+                Contact oldContact = adapter.getItem(position);
                 // This works for strings, but for contacts we'll want to copy over all unedited fields
                 deleteContact(position);
 
-                String value = input.getText().toString();
-                // Do something with value!
-                Log.i(TAG, value);
-                if (value != null && !value.isEmpty()) {
-                    getArrayAdapter().insert(value, position);
-                    refreshListAdapter();
+                String inputString = input.getText().toString();
+
+                if (inputString != null && !inputString.isEmpty()) {
+                    Contact contact = new Contact(oldContact);
+                    contact.displayName = inputString;
+                    getContactAdapter().insert(contact, position);
+                    refreshAdapter();
                 }
             }
         });
@@ -115,12 +118,12 @@ public class MainActivity extends ListActivity {
     }
 
     void bumpContact(int position) {
-        ArrayAdapter<String> adapter = getArrayAdapter();
-        String contact = adapter.getItem(position);
+        ContactAdapter adapter = getContactAdapter();
+        Contact contact = adapter.getItem(position);
         // Remove from list, then add to end
         adapter.remove(contact);
         adapter.add(contact);
-        refreshListAdapter();
+        refreshAdapter();
     }
     /* End Contacts context menu */
 
@@ -138,12 +141,19 @@ public class MainActivity extends ListActivity {
                 case CONTACT_PICKER_REQUEST:
                     Uri contactData = data.getData();
                     Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
+                    String columns[] = cursor.getColumnNames();
+                    for (String column : columns) {
+                        int index = cursor.getColumnIndex(column);
+                        Log.i(TAG, "column number: " + index);
+                        Log.i(TAG, "Column: " + column);
+                    }
                     if (cursor.moveToFirst()) {
                         String name =
                                 cursor.getString(
                                         cursor.getColumnIndex(
                                                 ContactsContract.Contacts.DISPLAY_NAME));
-                        getArrayAdapter().add(name);
+                        Contact contact = new Contact(getContentResolver(), contactData);
+                        getContactAdapter().add(contact);
                     }
                     break;
             }
@@ -153,14 +163,13 @@ public class MainActivity extends ListActivity {
         }
     }
 
-    private ArrayAdapter<String> getArrayAdapter() {
+    private ContactAdapter getContactAdapter() {
         // "all" and not "unchecked" because adapter will complain as being "redundant"
-        @SuppressWarnings("all")
-        ArrayAdapter<String> adapter = ((ArrayAdapter<String>) getListAdapter());
+        ContactAdapter adapter = (ContactAdapter) getListAdapter();
         return adapter;
     }
 
-    private void refreshListAdapter() {
+    private void refreshAdapter() {
         runOnUiThread(new Runnable() {
             public void run() {
                 ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
