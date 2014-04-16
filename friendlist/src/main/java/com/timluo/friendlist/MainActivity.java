@@ -133,7 +133,17 @@ public class MainActivity extends ListActivity {
                 case CONTACT_PICKER_REQUEST:
                     Uri contactData = data.getData();
                     Contact contact = new Contact(getContentResolver(), contactData);
-                    getContactAdapter().add(contact);
+                    if (!getContactAdapter().add(contact)) {
+                        AlertDialog.Builder alert = new AlertDialog.Builder(this);
+                        alert.setTitle("Duplicate contact");
+                        alert.setMessage("This contact is already in your deck.");
+                        alert.setNegativeButton("Ok", new DialogInterface.OnClickListener() {
+                            public void onClick(DialogInterface dialog, int whichButton) {
+                                // Canceled.
+                            }
+                        });
+                        alert.show();
+                    }
                     break;
             }
 

@@ -41,9 +41,13 @@ public class ContactAdapter extends BaseAdapter {
         return position;
     }
 
-    public void add(Contact contact) {
+    public boolean add(Contact contact) {
+        if (this.contacts.contains(contact)) {
+            return false;
+        }
         this.contacts.add(contact);
         notifyDataSetChanged();
+        return true;
     }
 
     public void insert(Contact contact, int position) {
