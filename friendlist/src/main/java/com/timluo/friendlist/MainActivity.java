@@ -4,10 +4,8 @@ import android.app.AlertDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.ContactsContract;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.Menu;
@@ -15,27 +13,22 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 import static android.provider.ContactsContract.Contacts;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MainActivity extends ListActivity {
-    private static final String TAG = "MainActivity";
+    public static final String TAG = "MainActivity";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        List<Contact> list = new ArrayList<Contact>();
         ListAdapter adapter =
-                new ContactAdapter(this, R.layout.friend_list_item, list);
+                new ContactAdapter(this, R.layout.friend_list_item);
         setListAdapter(adapter);
 
         ListView listView = getListView();
@@ -86,7 +79,7 @@ public class MainActivity extends ListActivity {
 
         final EditText input = new EditText(this);
         Contact currentContact = getContactAdapter().getItem(position);
-        String contactDisplay = currentContact.displayName;
+        String contactDisplay = currentContact.getDisplayName();
         input.setText(contactDisplay);
         input.setSelection(contactDisplay.length());
         alert.setView(input);
@@ -102,7 +95,6 @@ public class MainActivity extends ListActivity {
 
                 if (inputString != null && !inputString.isEmpty()) {
                     Contact contact = new Contact(oldContact);
-                    contact.displayName = inputString;
                     getContactAdapter().insert(contact, position);
                     refreshAdapter();
                 }
@@ -140,21 +132,8 @@ public class MainActivity extends ListActivity {
             switch (requestCode) {
                 case CONTACT_PICKER_REQUEST:
                     Uri contactData = data.getData();
-                    Cursor cursor = getContentResolver().query(contactData, null, null, null, null);
-                    String columns[] = cursor.getColumnNames();
-                    for (String column : columns) {
-                        int index = cursor.getColumnIndex(column);
-                        Log.i(TAG, "column number: " + index);
-                        Log.i(TAG, "Column: " + column);
-                    }
-                    if (cursor.moveToFirst()) {
-                        String name =
-                                cursor.getString(
-                                        cursor.getColumnIndex(
-                                                ContactsContract.Contacts.DISPLAY_NAME));
-                        Contact contact = new Contact(getContentResolver(), contactData);
-                        getContactAdapter().add(contact);
-                    }
+                    Contact contact = new Contact(getContentResolver(), contactData);
+                    getContactAdapter().add(contact);
                     break;
             }
 
@@ -164,7 +143,6 @@ public class MainActivity extends ListActivity {
     }
 
     private ContactAdapter getContactAdapter() {
-        // "all" and not "unchecked" because adapter will complain as being "redundant"
         ContactAdapter adapter = (ContactAdapter) getListAdapter();
         return adapter;
     }
@@ -172,7 +150,7 @@ public class MainActivity extends ListActivity {
     private void refreshAdapter() {
         runOnUiThread(new Runnable() {
             public void run() {
-                ((ArrayAdapter) getListAdapter()).notifyDataSetChanged();
+                ((ContactAdapter) getListAdapter()).notifyDataSetChanged();
             }
         });
     }

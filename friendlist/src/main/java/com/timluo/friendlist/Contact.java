@@ -5,6 +5,11 @@ import android.database.Cursor;
 import android.net.Uri;
 import android.provider.ContactsContract;
 
+import com.timluo.friendlist.model.PhoneNumber;
+
+import java.util.ArrayList;
+import java.util.List;
+
 import static android.provider.ContactsContract.CommonDataKinds.Phone;
 
 /**
@@ -12,58 +17,78 @@ import static android.provider.ContactsContract.CommonDataKinds.Phone;
  */
 public class Contact {
     Uri uri;
-    String givenName;
-    String familyName;
-    String displayName;
-    String phoneNumber;
+    int daysToContact;
+    int score;
 
-    public Contact(Contact toCopy) {
-        this.uri = toCopy.uri;
-        this.givenName = toCopy.givenName;
-        this.familyName = toCopy.familyName;
-        this.displayName = toCopy.displayName;
-        this.phoneNumber = toCopy.phoneNumber;
-    }
+    long lastUpdated = 0L;
+
+    ContentResolver contentResolver;
 
     public Contact(ContentResolver contentResolver, Uri uri) {
         this.uri = uri;
+        this.contentResolver = contentResolver;
+        this.lastUpdated = System.currentTimeMillis();
+    }
+
+    public Contact(Contact toCopy) {
+        this.uri = toCopy.uri;
+        this.contentResolver = toCopy.contentResolver;
+    }
+
+    public List<PhoneNumber> getPhoneNumbers() {
         String contactId = this.uri.getLastPathSegment();
-
-        /* Set names */
-        String whereName = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.CommonDataKinds.StructuredName.CONTACT_ID + " = ?";
-        String[] whereNameParams = new String[] { ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE, contactId };
-        Cursor nameCur = contentResolver.query(ContactsContract.Data.CONTENT_URI, null, whereName, whereNameParams, ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME);
-        while (nameCur.moveToNext()) {
-            this.givenName = nameCur.getString(nameCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.GIVEN_NAME));
-            this.familyName = nameCur.getString(nameCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.FAMILY_NAME));
-            this.displayName = nameCur.getString(nameCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME));
-        }
-        nameCur.close();
-
-
-        /* Set phone numbers */
-        Cursor phones = contentResolver.query(Phone.CONTENT_URI, null,
+        Cursor phones = this.contentResolver.query(Phone.CONTENT_URI, null,
                 Phone.CONTACT_ID + " = " + contactId, null, null);
+
+        List<PhoneNumber> foundNumbers = new ArrayList<PhoneNumber>();
         try {
             while (phones.moveToNext()) {
                 String number = phones.getString(phones.getColumnIndex(Phone.NUMBER));
                 int type = phones.getInt(phones.getColumnIndex(Phone.TYPE));
-                switch (type) {
-                    case Phone.TYPE_HOME:
-                        // do something with the Home number here...
-                        break;
-                    case Phone.TYPE_MOBILE:
-                        // do something with the Mobile number here...
-                        this.phoneNumber = number;
-                        break;
-                    case Phone.TYPE_WORK:
-                        // do something with the Work number here...
-                        break;
-                }
+                PhoneNumber phoneNumber = new PhoneNumber(number, type);
+                foundNumbers.add(phoneNumber);
             }
         }
         finally {
             phones.close();
         }
+        return foundNumbers;
+    }
+
+    public Long getLastUpdated() {
+        String contactId = this.uri.getLastPathSegment();
+        Cursor cursor = this.contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
+                Phone.CONTACT_ID + " = " + contactId, null, null);
+        String lastUpdated = null;
+        try {
+            while (cursor.moveToNext()) {
+                lastUpdated =
+                        cursor.getString(cursor.getColumnIndex(
+                                ContactsContract.CommonDataKinds.StructuredName.CONTACT_LAST_UPDATED_TIMESTAMP));
+            }
+        }
+        finally {
+            cursor.close();
+        }
+        return Long.valueOf(lastUpdated);
+    }
+
+    public String getDisplayName() {
+        String contactId = this.uri.getLastPathSegment();
+
+        /* Set names */
+        String whereName = ContactsContract.Data.MIMETYPE + " = ? AND " + ContactsContract.CommonDataKinds.StructuredName.CONTACT_ID + " = ?";
+        String[] whereNameParams = new String[] { ContactsContract.CommonDataKinds.StructuredName.CONTENT_ITEM_TYPE, contactId };
+        Cursor nameCur = contentResolver.query(ContactsContract.Data.CONTENT_URI, null, whereName, whereNameParams, null);
+        String displayName = null;
+        try {
+            while (nameCur.moveToNext()) {
+                displayName = nameCur.getString(nameCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME));
+            }
+        }
+        finally {
+            nameCur.close();
+        }
+        return displayName;
     }
 }

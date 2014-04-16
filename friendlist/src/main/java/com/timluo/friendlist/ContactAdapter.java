@@ -1,42 +1,90 @@
 package com.timluo.friendlist;
 
 import android.content.Context;
+import android.net.Uri;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.ArrayAdapter;
+import android.widget.BaseAdapter;
 import android.widget.TextView;
 
+import com.timluo.friendlist.model.PhoneNumber;
+
+import java.util.ArrayList;
 import java.util.List;
 
 /**
- * Created by timluo on 4/14/14.
+ * ArrayAdapter for {@link Contact} objects.
  */
-public class ContactAdapter extends ArrayAdapter<Contact> {
+public class ContactAdapter extends BaseAdapter {
     private int resource;
+    private LayoutInflater inflater;
+    private List<Contact> contacts = new ArrayList<Contact>();
 
-    public ContactAdapter(Context context, int resource, List<Contact> objects) {
-        super(context, resource, objects);
+    public ContactAdapter(Context context, int resource) {
         this.resource = resource;
+        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+    }
+
+    @Override
+    public int getCount() {
+        return this.contacts.size();
+    }
+
+    @Override
+    public Contact getItem(int position) {
+        return this.contacts.get(position);
+    }
+
+    @Override
+    public long getItemId(int position) {
+        return position;
+    }
+
+    public void add(Contact contact) {
+        this.contacts.add(contact);
+        notifyDataSetChanged();
+    }
+
+    public void insert(Contact contact, int position) {
+        this.contacts.add(position, contact);
+        notifyDataSetChanged();
+    }
+
+    public void remove(Contact contact) {
+        this.contacts.remove(contact);
+        notifyDataSetChanged();
+    }
+
+    public Contact contactForUri(Uri uri) {
+        for (Contact contact : this.contacts) {
+            if (contact.uri == uri) {
+                return contact;
+            }
+        }
+        return null;
     }
 
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
         if (convertView == null) {
-            LayoutInflater inflater =
-                    (LayoutInflater) getContext().getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-            view = inflater.inflate(this.resource, parent, false);
+            view = this.inflater.inflate(this.resource, parent, false);
         } else {
             view = convertView;
         }
 
         Contact contact = getItem(position);
         TextView nameText = (TextView) view.findViewById(R.id.contactName);
-        nameText.setText(contact.displayName);
+        nameText.setText(contact.getDisplayName());
 
         TextView numberText = (TextView) view.findViewById(R.id.contactNumber);
-        numberText.setText(contact.phoneNumber);
+        List<PhoneNumber> phoneNumbers = contact.getPhoneNumbers();
+        String phoneNumberText = null;
+        if (!phoneNumbers.isEmpty()) {
+            phoneNumberText = phoneNumbers.get(0).getPhoneNumber();
+        }
+        numberText.setText(phoneNumberText);
 
         return view;
     }
