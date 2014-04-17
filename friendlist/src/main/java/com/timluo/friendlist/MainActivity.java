@@ -17,18 +17,25 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import java.util.List;
+
 import static android.provider.ContactsContract.Contacts;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MainActivity extends ListActivity {
     public static final String TAG = "MainActivity";
+    private DatabaseHandler databaseHandler;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        this.databaseHandler = new DatabaseHandler(this);
+        List<Contact> contactList = this.databaseHandler.getAllContacts();
+        //TODO: contactList should be sorted by score
+
         ListAdapter adapter =
-                new ContactAdapter(this, R.layout.friend_list_item);
+                new ContactAdapter(this, R.layout.friend_list_item, contactList);
         setListAdapter(adapter);
 
         ListView listView = getListView();
@@ -40,6 +47,21 @@ public class MainActivity extends ListActivity {
             }
         });
         registerForContextMenu(listView);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        List<Contact> contacts = getContactAdapter().getContacts();
+        for (Contact contact : contacts) {
+            this.databaseHandler.addContact(contact);
+        }
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        this.databaseHandler.close();
     }
 
     /* Contacts context menu */
@@ -132,7 +154,7 @@ public class MainActivity extends ListActivity {
             switch (requestCode) {
                 case CONTACT_PICKER_REQUEST:
                     Uri contactData = data.getData();
-                    Contact contact = new Contact(getContentResolver(), contactData);
+                    Contact contact = new Contact(contactData, getContentResolver());
                     if (!getContactAdapter().add(contact)) {
                         AlertDialog.Builder alert = new AlertDialog.Builder(this);
                         alert.setTitle("Duplicate contact");

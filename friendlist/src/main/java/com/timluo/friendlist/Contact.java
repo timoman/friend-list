@@ -24,24 +24,88 @@ public class Contact {
     DateTime lastContacted;
     int score;
 
-    long lastUpdated = 0L;
+    long lastUpdated;
 
-    ContentResolver contentResolver;
+    String displayName;
+    List<PhoneNumber> phoneNumbers;
 
-    public Contact(ContentResolver contentResolver, Uri uri) {
+    public Contact(Uri uri) {
         this.uri = uri;
-        this.contentResolver = contentResolver;
-        this.lastUpdated = System.currentTimeMillis();
+    }
+
+    public Contact(Uri uri, ContentResolver contentResolver) {
+        this.uri = uri;
+        refresh(contentResolver);
+        //TODO:
+        this.daysToContact = Days.THREE;
+        this.lastContacted = new DateTime().withYear(1970).withMonthOfYear(1).withDayOfMonth(1).withTimeAtStartOfDay();
+        this.score = 0;
     }
 
     public Contact(Contact toCopy) {
         this.uri = toCopy.uri;
-        this.contentResolver = toCopy.contentResolver;
+    }
+
+    public void refresh(ContentResolver contentResolver) {
+        if (this.lastUpdated < getLastUpdated(contentResolver)) {
+            this.displayName = refreshDisplayName(contentResolver);
+            this.phoneNumbers = refreshPhoneNumbers(contentResolver);
+            this.lastUpdated = System.currentTimeMillis();
+        }
+        this.lastUpdated = System.currentTimeMillis();
+    }
+
+    public void setDaysToContact(Days daysToContact) {
+        this.daysToContact = daysToContact;
+    }
+
+    public void setLastContacted(DateTime lastContacted) {
+        this.lastContacted = lastContacted;
+    }
+
+    public void setScore(int score) {
+        this.score = score;
+    }
+
+    public void setLastUpdated(long lastUpdated) {
+        this.lastUpdated = lastUpdated;
+    }
+
+    public void setDisplayName(String displayName) {
+        this.displayName = displayName;
+    }
+
+    public void setPhoneNumbers(List<PhoneNumber> phoneNumbers) {
+        this.phoneNumbers = phoneNumbers;
+    }
+
+    public Uri getUri() {
+        return this.uri;
+    }
+
+    public Days getDaysToContact() {
+        return this.daysToContact;
+    }
+
+    public DateTime getLastContacted() {
+        return lastContacted;
+    }
+
+    public int getScore() {
+        return score;
+    }
+
+    public String getDisplayName() {
+        return this.displayName;
     }
 
     public List<PhoneNumber> getPhoneNumbers() {
+        return this.phoneNumbers;
+    }
+
+    private List<PhoneNumber> refreshPhoneNumbers(ContentResolver contentResolver) {
         String contactId = this.uri.getLastPathSegment();
-        Cursor phones = this.contentResolver.query(Phone.CONTENT_URI, null,
+        Cursor phones = contentResolver.query(Phone.CONTENT_URI, null,
                 Phone.CONTACT_ID + " = " + contactId, null, null);
 
         List<PhoneNumber> foundNumbers = new ArrayList<PhoneNumber>();
@@ -59,9 +123,9 @@ public class Contact {
         return foundNumbers;
     }
 
-    public Long getLastUpdated() {
+    private Long getLastUpdated(ContentResolver contentResolver) {
         String contactId = this.uri.getLastPathSegment();
-        Cursor cursor = this.contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
+        Cursor cursor = contentResolver.query(ContactsContract.Data.CONTENT_URI, null,
                 Phone.CONTACT_ID + " = " + contactId, null, null);
         String lastUpdated = null;
         try {
@@ -77,7 +141,7 @@ public class Contact {
         return Long.valueOf(lastUpdated);
     }
 
-    public String getDisplayName() {
+    private String refreshDisplayName(ContentResolver contentResolver) {
         String contactId = this.uri.getLastPathSegment();
 
         /* Set names */

@@ -26,6 +26,12 @@ public class ContactAdapter extends BaseAdapter {
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
+    public ContactAdapter(Context context, int resource, List<Contact> contacts) {
+        this.resource = resource;
+        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
+        this.contacts = contacts;
+    }
+
     @Override
     public int getCount() {
         return this.contacts.size();
@@ -69,6 +75,10 @@ public class ContactAdapter extends BaseAdapter {
         return null;
     }
 
+    public List<Contact> getContacts() {
+        return new ArrayList<Contact>(contacts);
+    }
+
     @Override
     public View getView(int position, View convertView, ViewGroup parent) {
         View view;
@@ -85,7 +95,7 @@ public class ContactAdapter extends BaseAdapter {
         TextView numberText = (TextView) view.findViewById(R.id.contactNumber);
         List<PhoneNumber> phoneNumbers = contact.getPhoneNumbers();
         String phoneNumberText = null;
-        if (!phoneNumbers.isEmpty()) {
+        if (phoneNumbers != null && !phoneNumbers.isEmpty()) {
             phoneNumberText = phoneNumbers.get(0).getPhoneNumber();
         }
         numberText.setText(phoneNumberText);
