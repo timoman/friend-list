@@ -7,6 +7,9 @@ import android.provider.ContactsContract;
 
 import com.timluo.friendlist.model.PhoneNumber;
 
+import org.joda.time.DateTime;
+import org.joda.time.Days;
+
 import java.util.ArrayList;
 import java.util.List;
 
@@ -17,7 +20,8 @@ import static android.provider.ContactsContract.CommonDataKinds.Phone;
  */
 public class Contact {
     Uri uri;
-    int daysToContact;
+    Days daysToContact;
+    DateTime lastContacted;
     int score;
 
     long lastUpdated = 0L;
