@@ -1,7 +1,11 @@
 package com.timluo.friendlist;
 
 import android.content.ContentResolver;
+import android.content.ContentUris;
+import android.content.res.AssetFileDescriptor;
 import android.database.Cursor;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.ContactsContract;
 
@@ -10,10 +14,14 @@ import com.timluo.friendlist.model.PhoneNumber;
 import org.joda.time.DateTime;
 import org.joda.time.Days;
 
+import java.io.ByteArrayInputStream;
+import java.io.IOException;
+import java.io.InputStream;
 import java.util.ArrayList;
 import java.util.List;
 
 import static android.provider.ContactsContract.CommonDataKinds.Phone;
+import static android.provider.ContactsContract.Contacts;
 
 /**
  * Represents a contact and his/her information
@@ -158,6 +166,17 @@ public class Contact {
             nameCur.close();
         }
         return displayName;
+    }
+
+    public Bitmap getPhotoThumbnail(ContentResolver contentResolver) {
+        Uri photoUri = Uri.withAppendedPath(this.uri, Contacts.Photo.DISPLAY_PHOTO);
+        try {
+            AssetFileDescriptor fd =
+                    contentResolver.openAssetFileDescriptor(photoUri, "r");
+            return BitmapFactory.decodeStream(fd.createInputStream());
+        } catch (IOException e) {
+            return null;
+        }
     }
 
     @Override

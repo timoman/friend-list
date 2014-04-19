@@ -6,6 +6,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.ImageView;
 import android.widget.TextView;
 
 import com.timluo.friendlist.model.PhoneNumber;
@@ -20,6 +21,7 @@ public class ContactAdapter extends BaseAdapter {
     private int resource;
     private LayoutInflater inflater;
     private List<Contact> contacts = new ArrayList<Contact>();
+    private Context context;
 
     public ContactAdapter(Context context, int resource) {
         this.resource = resource;
@@ -27,6 +29,7 @@ public class ContactAdapter extends BaseAdapter {
     }
 
     public ContactAdapter(Context context, int resource, List<Contact> contacts) {
+        this.context = context;
         this.resource = resource;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.contacts = contacts;
@@ -89,6 +92,10 @@ public class ContactAdapter extends BaseAdapter {
         }
 
         Contact contact = getItem(position);
+
+        ImageView profileThumbnail = (ImageView) view.findViewById(R.id.profileThumbnail);
+        profileThumbnail.setImageBitmap(contact.getPhotoThumbnail(this.context.getContentResolver()));
+
         TextView nameText = (TextView) view.findViewById(R.id.contactName);
         nameText.setText(contact.getDisplayName());
 
