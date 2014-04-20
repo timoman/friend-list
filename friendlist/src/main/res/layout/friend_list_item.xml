@@ -17,26 +17,22 @@
         <TextView
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:textSize="25dp"
+            android:textSize="22dp"
             android:id="@+id/contactName"/>
-
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:id="@+id/contactNumber"/>
 
         <TextView
             android:id="@+id/lastContacted"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content">
         </TextView>
+
+        <TextView
+            android:id="@+id/contactScore"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content">
+        </TextView>
     </LinearLayout>
 
-    <TextView
-        android:id="@+id/contactScore"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content">
-    </TextView>
 
 </LinearLayout>
 

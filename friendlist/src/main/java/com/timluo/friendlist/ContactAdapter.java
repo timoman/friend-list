@@ -12,6 +12,7 @@ import android.widget.TextView;
 
 import com.timluo.friendlist.model.PhoneNumber;
 
+import java.text.DecimalFormat;
 import java.util.ArrayList;
 import java.util.Collections;
 import java.util.Comparator;
@@ -26,6 +27,9 @@ public class ContactAdapter extends BaseAdapter {
     private List<Contact> contacts = new ArrayList<Contact>();
     private Context context;
     private DatabaseHandler databaseHandler;
+
+
+    private static DecimalFormat SCORE_FORMAT = new DecimalFormat("0.00");
 
     public ContactAdapter(Context context, int resource) {
         this.resource = resource;
@@ -107,19 +111,11 @@ public class ContactAdapter extends BaseAdapter {
         TextView nameText = (TextView) view.findViewById(R.id.contactName);
         nameText.setText(contact.getDisplayName());
 
-        TextView numberText = (TextView) view.findViewById(R.id.contactNumber);
-        List<PhoneNumber> phoneNumbers = contact.getPhoneNumbers();
-        String phoneNumberText = null;
-        if (phoneNumbers != null && !phoneNumbers.isEmpty()) {
-            phoneNumberText = phoneNumbers.get(0).getPhoneNumber();
-        }
-        numberText.setText(phoneNumberText);
-
         TextView lastContactedText = (TextView) view.findViewById(R.id.lastContacted);
-        lastContactedText.setText(contact.getLastContacted().toString());
+        lastContactedText.setText("Last Contacted: " + contact.getLastContacted().toString());
 
         TextView scoreText = (TextView) view.findViewById(R.id.contactScore);
-        scoreText.setText("Score: " + contact.getScore());
+        scoreText.setText("Score: " + SCORE_FORMAT.format(contact.getScore()));
 
         return view;
     }
