@@ -120,7 +120,6 @@ public class ContactAdapter extends BaseAdapter {
 
         TextView scoreText = (TextView) view.findViewById(R.id.contactScore);
         scoreText.setText("Score: " + contact.getScore());
-        Log.i(MainActivity.TAG, "score: " + contact.getScore());
 
         return view;
     }
