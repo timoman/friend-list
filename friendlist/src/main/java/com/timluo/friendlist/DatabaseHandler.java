@@ -67,7 +67,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(DAYS_TO_CONTACT, contact.getDaysToContact().getDays());
             values.put(LAST_CONTACTED, contact.getLastContacted().toString());
 
-            // Inserting Row
+            // Replace/update existing record
             db.insertWithOnConflict(TABLE_CONTACTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
         }
         finally {

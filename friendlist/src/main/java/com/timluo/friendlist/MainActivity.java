@@ -42,7 +42,7 @@ public class MainActivity extends ListActivity {
         //TODO: contactList should be sorted by score
 
         ListAdapter adapter =
-                new ContactAdapter(this, R.layout.friend_list_item, contactList);
+                new ContactAdapter(this, R.layout.friend_list_item, contactList, this.databaseHandler);
         setListAdapter(adapter);
 
         ListView listView = getListView();
@@ -59,10 +59,6 @@ public class MainActivity extends ListActivity {
     @Override
     protected void onPause() {
         super.onPause();
-        List<Contact> contacts = getContactAdapter().getContacts();
-        for (Contact contact : contacts) {
-            this.databaseHandler.addContact(contact);
-        }
     }
 
     @Override
@@ -98,7 +94,8 @@ public class MainActivity extends ListActivity {
 
     void deleteContact(int position) {
         ContactAdapter adapter = getContactAdapter();
-        adapter.remove(adapter.getItem(position));
+        Contact contact = adapter.getItem(position);
+        adapter.remove(contact);
     }
 
     void editContact(final int position) {

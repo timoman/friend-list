@@ -25,17 +25,19 @@ public class ContactAdapter extends BaseAdapter {
     private LayoutInflater inflater;
     private List<Contact> contacts = new ArrayList<Contact>();
     private Context context;
+    private DatabaseHandler databaseHandler;
 
     public ContactAdapter(Context context, int resource) {
         this.resource = resource;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
     }
 
-    public ContactAdapter(Context context, int resource, List<Contact> contacts) {
+    public ContactAdapter(Context context, int resource, List<Contact> contacts, DatabaseHandler databaseHandler) {
         this.context = context;
         this.resource = resource;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.contacts = contacts;
+        this.databaseHandler = databaseHandler;
         notifyDataSetChanged();
     }
 
@@ -59,6 +61,7 @@ public class ContactAdapter extends BaseAdapter {
             return false;
         }
         this.contacts.add(contact);
+        this.databaseHandler.addContact(contact);
         notifyDataSetChanged();
         return true;
     }
@@ -70,6 +73,7 @@ public class ContactAdapter extends BaseAdapter {
 
     public void remove(Contact contact) {
         this.contacts.remove(contact);
+        this.databaseHandler.deleteContact(contact);
         notifyDataSetChanged();
     }
 
