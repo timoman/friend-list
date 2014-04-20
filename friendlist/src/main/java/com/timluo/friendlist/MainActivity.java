@@ -110,6 +110,7 @@ public class MainActivity extends ListActivity {
                 LocalDate newLastContacted = LocalDate.fromCalendarFields(calendar);
                 newLastContacted.minusMonths(1);
                 contact.setLastContacted(newLastContacted);
+                databaseHandler.addContact(contact);
                 refreshAdapter();
             }
         };
