@@ -1,6 +1,9 @@
 package com.timluo.friendlist;
 
 import android.app.AlertDialog;
+import android.app.DatePickerDialog;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
@@ -13,10 +16,14 @@ import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.widget.AdapterView;
+import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 
+import org.joda.time.LocalDate;
+
+import java.util.Calendar;
 import java.util.List;
 
 import static android.provider.ContactsContract.Contacts;
@@ -95,45 +102,30 @@ public class MainActivity extends ListActivity {
     }
 
     void editContact(final int position) {
-        AlertDialog.Builder alert = new AlertDialog.Builder(this);
-        alert.setTitle("Edit Contact");
-        alert.setMessage("Enter a name");
+        ContactAdapter adapter = getContactAdapter();
+        final Contact contact = adapter.getItem(position);
+        DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
+            @Override
+            public void onDateSet(DatePicker datePicker, int year, int month, int day) {
+                final Calendar calendar = Calendar.getInstance();
+                calendar.set(year, month, day);
 
-        final EditText input = new EditText(this);
-        Contact currentContact = getContactAdapter().getItem(position);
-        String contactDisplay = currentContact.getDisplayName();
-        input.setText(contactDisplay);
-        input.setSelection(contactDisplay.length());
-        alert.setView(input);
-
-        alert.setPositiveButton("Ok", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                ContactAdapter adapter = getContactAdapter();
-                Contact oldContact = adapter.getItem(position);
-                // This works for strings, but for contacts we'll want to copy over all unedited fields
-                deleteContact(position);
-
-                String inputString = input.getText().toString();
-
-                if (inputString != null && !inputString.isEmpty()) {
-                    Contact contact = new Contact(oldContact);
-                    getContactAdapter().insert(contact, position);
-                    refreshAdapter();
-                }
+                LocalDate newLastContacted = LocalDate.fromCalendarFields(calendar);
+                newLastContacted.minusMonths(1);
+                contact.setLastContacted(newLastContacted);
+                refreshAdapter();
             }
-        });
-
-        alert.setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
-            public void onClick(DialogInterface dialog, int whichButton) {
-                // Canceled.
-            }
-        });
-        alert.show();
+        };
+        LocalDate oldDate = contact.getLastContacted();
+        DatePickerDialog datePicker = new DatePickerDialog(this, dateSetListener,
+                oldDate.getYear(), oldDate.minusMonths(1).getMonthOfYear(), oldDate.getDayOfMonth());
+        datePicker.show();
     }
 
     void bumpContact(int position) {
         ContactAdapter adapter = getContactAdapter();
         Contact contact = adapter.getItem(position);
+        contact.setLastContacted(LocalDate.now());
         // Remove from list, then add to end
         adapter.remove(contact);
         adapter.add(contact);

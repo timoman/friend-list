@@ -13,6 +13,8 @@ import android.widget.TextView;
 import com.timluo.friendlist.model.PhoneNumber;
 
 import java.util.ArrayList;
+import java.util.Collections;
+import java.util.Comparator;
 import java.util.List;
 
 /**
@@ -34,6 +36,7 @@ public class ContactAdapter extends BaseAdapter {
         this.resource = resource;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.contacts = contacts;
+        notifyDataSetChanged();
     }
 
     @Override
@@ -116,5 +119,17 @@ public class ContactAdapter extends BaseAdapter {
         Log.i(MainActivity.TAG, "score: " + contact.getScore());
 
         return view;
+    }
+
+    @Override
+    public void notifyDataSetChanged() {
+        Collections.sort(this.contacts, new Comparator<Contact>() {
+            @Override
+            public int compare(Contact contact, Contact contact2) {
+                // Return descending; larger values have more priority
+                return -1 * contact.getScore().compareTo(contact2.getScore());
+            }
+        });
+        super.notifyDataSetChanged();
     }
 }

@@ -52,6 +52,12 @@ public class Contact {
 
     public Contact(Contact toCopy) {
         this.uri = toCopy.uri;
+        this.daysToContact = toCopy.daysToContact;
+        this.lastContacted = toCopy.lastContacted;
+
+        this.displayName = toCopy.displayName;
+        this.phoneNumbers = new ArrayList<PhoneNumber>(toCopy.phoneNumbers);
+        this.lastUpdated = toCopy.lastUpdated;
     }
 
     public void refresh(ContentResolver contentResolver) {
@@ -172,7 +178,7 @@ public class Contact {
         }
     }
 
-    public double getScore() {
+    public Double getScore() {
         int days = Days.daysBetween(this.lastContacted, LocalDate.now()).getDays();
         return Double.valueOf(days) / this.daysToContact.getDays();
     }
