@@ -13,6 +13,7 @@ import com.timluo.friendlist.model.PhoneNumber;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.LocalDate;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -29,7 +30,7 @@ import static android.provider.ContactsContract.Contacts;
 public class Contact {
     Uri uri;
     Days daysToContact;
-    DateTime lastContacted;
+    LocalDate lastContacted;
     int score;
 
     long lastUpdated;
@@ -46,7 +47,7 @@ public class Contact {
         refresh(contentResolver);
         //TODO:
         this.daysToContact = Days.THREE;
-        this.lastContacted = new DateTime().withYear(1970).withMonthOfYear(1).withDayOfMonth(1).withTimeAtStartOfDay();
+        this.lastContacted = LocalDate.now();new DateTime().withYear(1970).withMonthOfYear(1).withDayOfMonth(1).withTimeAtStartOfDay();
         this.score = 0;
     }
 
@@ -67,7 +68,7 @@ public class Contact {
         this.daysToContact = daysToContact;
     }
 
-    public void setLastContacted(DateTime lastContacted) {
+    public void setLastContacted(LocalDate lastContacted) {
         this.lastContacted = lastContacted;
     }
 
@@ -95,7 +96,7 @@ public class Contact {
         return this.daysToContact;
     }
 
-    public DateTime getLastContacted() {
+    public LocalDate getLastContacted() {
         return lastContacted;
     }
 

@@ -2,6 +2,7 @@ package com.timluo.friendlist;
 
 import android.content.Context;
 import android.net.Uri;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -106,6 +107,10 @@ public class ContactAdapter extends BaseAdapter {
             phoneNumberText = phoneNumbers.get(0).getPhoneNumber();
         }
         numberText.setText(phoneNumberText);
+
+        TextView lastContacted = (TextView) view.findViewById(R.id.lastContacted);
+        lastContacted.setText(contact.getLastContacted().toString());
+        Log.i(MainActivity.TAG, "lastContacted: " + contact.getLastContacted().toString());
 
         return view;
     }
