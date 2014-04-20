@@ -13,6 +13,7 @@ import com.timluo.friendlist.model.PhoneNumber;
 
 import org.joda.time.DateTime;
 import org.joda.time.Days;
+import org.joda.time.Interval;
 import org.joda.time.LocalDate;
 
 import java.io.ByteArrayInputStream;
@@ -31,7 +32,6 @@ public class Contact {
     Uri uri;
     Days daysToContact;
     LocalDate lastContacted;
-    int score;
 
     long lastUpdated;
 
@@ -48,7 +48,6 @@ public class Contact {
         //TODO:
         this.daysToContact = Days.THREE;
         this.lastContacted = LocalDate.now();new DateTime().withYear(1970).withMonthOfYear(1).withDayOfMonth(1).withTimeAtStartOfDay();
-        this.score = 0;
     }
 
     public Contact(Contact toCopy) {
@@ -72,9 +71,6 @@ public class Contact {
         this.lastContacted = lastContacted;
     }
 
-    public void setScore(int score) {
-        this.score = score;
-    }
 
     public void setLastUpdated(long lastUpdated) {
         this.lastUpdated = lastUpdated;
@@ -98,10 +94,6 @@ public class Contact {
 
     public LocalDate getLastContacted() {
         return lastContacted;
-    }
-
-    public int getScore() {
-        return score;
     }
 
     public String getDisplayName() {
@@ -178,6 +170,11 @@ public class Contact {
         } catch (IOException e) {
             return null;
         }
+    }
+
+    public double getScore() {
+        int days = Days.daysBetween(this.lastContacted, LocalDate.now()).getDays();
+        return Double.valueOf(days) / this.daysToContact.getDays();
     }
 
     @Override

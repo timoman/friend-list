@@ -18,7 +18,7 @@ import java.util.List;
  * SQLite database for {@link Contact}s
  */
 public class DatabaseHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 2;
+    private static final int DATABASE_VERSION = 3;
     // Database Name
     private static final String DATABASE_NAME = "contactsManager";
 
@@ -30,7 +30,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String URI = "uri";
     private static final String DAYS_TO_CONTACT = "contact_frequency_target_days";
     private static final String LAST_CONTACTED = "last_contacted";
-    private static final String SCORE = "score";
 
     private Context context;
 
@@ -46,8 +45,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         String CREATE_CONTACTS_TABLE = "CREATE TABLE " + TABLE_CONTACTS + "("
                 + URI + " TEXT PRIMARY KEY, "
                 + DAYS_TO_CONTACT + " INT, "
-                + LAST_CONTACTED + " TEXT, "
-                + SCORE + " INT)";
+                + LAST_CONTACTED + " TEXT)";
         db.execSQL(CREATE_CONTACTS_TABLE);
     }
 
@@ -68,7 +66,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
             values.put(URI, contact.getUri().toString());
             values.put(DAYS_TO_CONTACT, contact.getDaysToContact().getDays());
             values.put(LAST_CONTACTED, contact.getLastContacted().toString());
-            values.put(SCORE, contact.getScore());
 
             // Inserting Row
             db.insertWithOnConflict(TABLE_CONTACTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -96,7 +93,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Contact contact = new Contact(Uri.parse(cursor.getString(cursor.getColumnIndex(URI))));
         contact.setDaysToContact(Days.days(cursor.getInt(cursor.getColumnIndex(DAYS_TO_CONTACT))));
         contact.setLastContacted(LocalDate.parse(cursor.getString(cursor.getColumnIndex(LAST_CONTACTED))));
-        contact.setScore(cursor.getInt(cursor.getColumnIndex(SCORE)));
         contact.refresh(this.context.getContentResolver());
         return contact;
     }
@@ -142,7 +138,6 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         values.put(URI, contact.getUri().toString());
         values.put(DAYS_TO_CONTACT, contact.getDaysToContact().getDays());
         values.put(LAST_CONTACTED, contact.getLastContacted().toString());
-        values.put(SCORE, contact.getScore());
 
         // updating row
         return db.update(TABLE_CONTACTS, values, URI + " = ?",

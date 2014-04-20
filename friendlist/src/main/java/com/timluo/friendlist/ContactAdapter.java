@@ -108,9 +108,12 @@ public class ContactAdapter extends BaseAdapter {
         }
         numberText.setText(phoneNumberText);
 
-        TextView lastContacted = (TextView) view.findViewById(R.id.lastContacted);
-        lastContacted.setText(contact.getLastContacted().toString());
-        Log.i(MainActivity.TAG, "lastContacted: " + contact.getLastContacted().toString());
+        TextView lastContactedText = (TextView) view.findViewById(R.id.lastContacted);
+        lastContactedText.setText(contact.getLastContacted().toString());
+
+        TextView scoreText = (TextView) view.findViewById(R.id.contactScore);
+        scoreText.setText("Score: " + contact.getScore());
+        Log.i(MainActivity.TAG, "score: " + contact.getScore());
 
         return view;
     }
