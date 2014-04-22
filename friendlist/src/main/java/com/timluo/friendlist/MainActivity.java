@@ -39,7 +39,6 @@ public class MainActivity extends ListActivity {
 
         this.databaseHandler = new DatabaseHandler(this);
         List<Contact> contactList = this.databaseHandler.getAllContacts();
-        //TODO: contactList should be sorted by score
 
         ListAdapter adapter =
                 new ContactAdapter(this, R.layout.friend_list_item, contactList, this.databaseHandler);
@@ -117,6 +116,16 @@ public class MainActivity extends ListActivity {
         LocalDate oldDate = contact.getLastContacted();
         DatePickerDialog datePicker = new DatePickerDialog(this, dateSetListener,
                 oldDate.getYear(), oldDate.minusMonths(1).getMonthOfYear(), oldDate.getDayOfMonth());
+        datePicker.setButton(
+                DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_NEGATIVE) {
+                            // Cancel the date picking action
+                        }
+                    }
+                });
+        datePicker.setCancelable(true);
         datePicker.show();
     }
 

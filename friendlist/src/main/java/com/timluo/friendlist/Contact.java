@@ -8,6 +8,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import com.timluo.friendlist.model.PhoneNumber;
 
@@ -169,13 +170,14 @@ public class Contact {
 
     public Bitmap getPhotoThumbnail(ContentResolver contentResolver) {
         Uri photoUri = Uri.withAppendedPath(this.uri, Contacts.Photo.DISPLAY_PHOTO);
-        try {
-            AssetFileDescriptor fd =
-                    contentResolver.openAssetFileDescriptor(photoUri, "r");
-            return BitmapFactory.decodeStream(fd.createInputStream());
-        } catch (IOException e) {
-            return null;
-        }
+//        try {
+            InputStream inputStream = Contacts.openContactPhotoInputStream(contentResolver, this.uri, true);
+            return BitmapFactory.decodeStream(inputStream);
+//        } catch (IOException e) {
+//            Log.w(MainActivity.TAG,
+//                    "Could not open contact photo for contact: " + this.displayName);
+//            return null;
+//        }
     }
 
     public Double getScore() {
