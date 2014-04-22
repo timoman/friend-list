@@ -20,6 +20,7 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Toast;
 
 import org.joda.time.LocalDate;
 
@@ -98,6 +99,28 @@ public class MainActivity extends ListActivity {
     }
 
     void editContact(final int position) {
+        String[] editContactArray = getResources().getStringArray(R.array.edit_contact_array);
+        AlertDialog editPicker = new AlertDialog.Builder(this)
+                                .setTitle("Edit Contact")
+                                .setItems(editContactArray, new DialogInterface.OnClickListener() {
+                                    public void onClick(DialogInterface dialog, int which) {
+                                        // The 'which' argument contains the index position
+                                        // of the selected item
+                                        switch (which) {
+                                            case 0:
+                                                editContactFrequency(position);
+                                                break;
+                                            default:
+                                                editContactLastContacted(position);
+                                                break;
+                                        }
+                                    };
+                                }).create();
+        addCancelButton(editPicker);
+        editPicker.show();
+    }
+
+    private void editContactLastContacted(int position) {
         ContactAdapter adapter = getContactAdapter();
         final Contact contact = adapter.getItem(position);
         DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
@@ -116,7 +139,12 @@ public class MainActivity extends ListActivity {
         LocalDate oldDate = contact.getLastContacted();
         DatePickerDialog datePicker = new DatePickerDialog(this, dateSetListener,
                 oldDate.getYear(), oldDate.minusMonths(1).getMonthOfYear(), oldDate.getDayOfMonth());
-        datePicker.setButton(
+        addCancelButton(datePicker);
+        datePicker.show();
+    }
+
+    private static void addCancelButton(AlertDialog dialog) {
+        dialog.setButton(
                 DialogInterface.BUTTON_NEGATIVE, "Cancel",
                 new DialogInterface.OnClickListener() {
                     public void onClick(DialogInterface dialog, int which) {
@@ -125,8 +153,11 @@ public class MainActivity extends ListActivity {
                         }
                     }
                 });
-        datePicker.setCancelable(true);
-        datePicker.show();
+        dialog.setCancelable(true);
+    }
+
+    private void editContactFrequency(int position) {
+        Toast.makeText(this, "edit contact frequency", Toast.LENGTH_SHORT).show();
     }
 
     void bumpContact(int position) {

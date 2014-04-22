@@ -10,4 +10,10 @@
     <string name="bump_contact">Bump</string>
     <string name="edit_contact">Edit details</string>
 
+
+    <string-array name="edit_contact_array">
+        <item>How often</item>
+        <item>Last Contacted</item>
+    </string-array>
+
 </resources>
