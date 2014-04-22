@@ -117,6 +117,9 @@ public class ContactAdapter extends BaseAdapter {
         TextView scoreText = (TextView) view.findViewById(R.id.contactScore);
         scoreText.setText("Score: " + SCORE_FORMAT.format(contact.getScore()));
 
+        TextView frequencyText = (TextView) view.findViewById(R.id.contactFrequency);
+        frequencyText.setText("Contact every " + contact.getDaysToContact().getDays() + " days");
+
         return view;
     }
 
