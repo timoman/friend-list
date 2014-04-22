@@ -21,14 +21,21 @@ import android.widget.DatePicker;
 import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
+import android.widget.Spinner;
 import android.widget.Toast;
 
+import org.joda.time.DateTimeConstants;
+import org.joda.time.Days;
+import org.joda.time.DurationField;
 import org.joda.time.LocalDate;
+import org.joda.time.Period;
+import org.joda.time.PeriodType;
 
 import java.util.Calendar;
 import java.util.List;
 
 import static android.provider.ContactsContract.Contacts;
+import static android.view.View.inflate;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MainActivity extends ListActivity {
@@ -146,32 +153,51 @@ public class MainActivity extends ListActivity {
         datePicker.show();
     }
 
-    private static void addCancelButton(AlertDialog dialog) {
-        dialog.setButton(
-                DialogInterface.BUTTON_NEGATIVE, "Cancel",
-                new DialogInterface.OnClickListener() {
-                    public void onClick(DialogInterface dialog, int which) {
-                        if (which == DialogInterface.BUTTON_NEGATIVE) {
-                            // Cancel the date picking action
-                        }
-                    }
-                });
-        dialog.setCancelable(true);
-    }
-
     private void editContactFrequency(int position) {
+        ContactAdapter adapter = getContactAdapter();
+        final Contact contact = adapter.getItem(position);
+
         // Get the layout inflater
         LayoutInflater inflater = getLayoutInflater();
 
+        final View view = inflater.inflate(R.layout.contact_frequency_layout, null);
         AlertDialog dialog = new AlertDialog.Builder(this)
         // Inflate and set the layout for the dialog
         // Pass null as the parent view because its going in the dialog layout
-        .setView(inflater.inflate(R.layout.contact_frequency_layout, null))
-                // Add action buttons
+        .setView(view)
+
+        // Add action buttons
         .setPositiveButton("Save", new DialogInterface.OnClickListener() {
             @Override
             public void onClick(DialogInterface dialog, int id) {
-                // sign in the user ...
+                final EditText timeValueField = (EditText) view.findViewById(R.id.time_value);
+                final Spinner timeResolutionField = (Spinner) view.findViewById(R.id.time_resolution_spinner);
+
+                Integer timeValue = Integer.parseInt(timeValueField.getText().toString());
+                String timeResolution = timeResolutionField.getSelectedItem().toString().toLowerCase();
+
+                Period period;
+                // TODO: can't do partial days, so hour screws things up... either remove hour or make daysToContact a double instead of a Days
+                if (timeResolution.contains("hour")) {
+                    period = Period.hours(timeValue);
+                }
+                else if (timeResolution.contains("day")) {
+                    period = Period.days(timeValue);
+                }
+                else if (timeResolution.contains("week")) {
+                    period = Period.weeks(timeValue);
+                }
+
+                // Can't use years or months because .toStandardDays complains of varying length
+                else if (timeResolution.contains("month")) {
+                    period = Period.days(30 * timeValue);
+                }
+                else { // if (timeResolution.contains("year"))
+                    period = Period.days(365 * timeValue);
+                }
+                contact.setDaysToContact(period.toStandardDays());
+                databaseHandler.addContact(contact);
+                refreshAdapter();
             }
         })
         .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
@@ -264,5 +290,19 @@ public class MainActivity extends ListActivity {
     }
 
     /* End action bar option menu */
+
+    private static void addCancelButton(AlertDialog dialog) {
+        dialog.setButton(
+                DialogInterface.BUTTON_NEGATIVE, "Cancel",
+                new DialogInterface.OnClickListener() {
+                    public void onClick(DialogInterface dialog, int which) {
+                        if (which == DialogInterface.BUTTON_NEGATIVE) {
+                            // Cancel the date picking action
+                        }
+                    }
+                });
+        dialog.setCancelable(true);
+    }
+
 
 }
