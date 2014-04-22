@@ -11,6 +11,7 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.util.Log;
 import android.view.ContextMenu;
+import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuInflater;
 import android.view.MenuItem;
@@ -114,7 +115,9 @@ public class MainActivity extends ListActivity {
                                                 editContactLastContacted(position);
                                                 break;
                                         }
-                                    };
+                                    }
+
+                                    ;
                                 }).create();
         addCancelButton(editPicker);
         editPicker.show();
@@ -157,7 +160,27 @@ public class MainActivity extends ListActivity {
     }
 
     private void editContactFrequency(int position) {
-        Toast.makeText(this, "edit contact frequency", Toast.LENGTH_SHORT).show();
+        // Get the layout inflater
+        LayoutInflater inflater = getLayoutInflater();
+
+        AlertDialog dialog = new AlertDialog.Builder(this)
+        // Inflate and set the layout for the dialog
+        // Pass null as the parent view because its going in the dialog layout
+        .setView(inflater.inflate(R.layout.contact_frequency_layout, null))
+                // Add action buttons
+        .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(DialogInterface dialog, int id) {
+                // sign in the user ...
+            }
+        })
+        .setNegativeButton("Cancel", new DialogInterface.OnClickListener() {
+            public void onClick(DialogInterface dialog, int id) {
+            }
+        })
+        .setTitle("Edit Frequency")
+        .create();
+        dialog.show();
     }
 
     void bumpContact(int position) {
