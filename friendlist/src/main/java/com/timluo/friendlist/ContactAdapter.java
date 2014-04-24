@@ -2,15 +2,14 @@ package com.timluo.friendlist;
 
 import android.content.Context;
 import android.net.Uri;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.BaseAdapter;
+import android.widget.Filter;
+import android.widget.Filterable;
 import android.widget.ImageView;
 import android.widget.TextView;
-
-import com.timluo.friendlist.model.PhoneNumber;
 
 import java.text.DecimalFormat;
 import java.util.ArrayList;
@@ -21,10 +20,11 @@ import java.util.List;
 /**
  * ArrayAdapter for {@link Contact} objects.
  */
-public class ContactAdapter extends BaseAdapter {
+public class ContactAdapter extends BaseAdapter implements Filterable {
     private int resource;
     private LayoutInflater inflater;
-    private List<Contact> contacts = new ArrayList<Contact>();
+    private List<Contact> allContacts = new ArrayList<Contact>();
+    private List<Contact> visibleContacts = new ArrayList<Contact>();
     private Context context;
     private DatabaseHandler databaseHandler;
 
@@ -40,19 +40,23 @@ public class ContactAdapter extends BaseAdapter {
         this.context = context;
         this.resource = resource;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-        this.contacts = contacts;
+        this.allContacts = contacts;
+        this.visibleContacts = this.allContacts;
         this.databaseHandler = databaseHandler;
         notifyDataSetChanged();
     }
 
     @Override
     public int getCount() {
-        return this.contacts.size();
+        return this.visibleContacts.size();
     }
 
     @Override
     public Contact getItem(int position) {
-        return this.contacts.get(position);
+        if (this.visibleContacts.size() > position) {
+            return this.visibleContacts.get(position);
+        }
+        return null;
     }
 
     @Override
@@ -61,28 +65,28 @@ public class ContactAdapter extends BaseAdapter {
     }
 
     public boolean add(Contact contact) {
-        if (this.contacts.contains(contact)) {
+        if (this.allContacts.contains(contact)) {
             return false;
         }
-        this.contacts.add(contact);
+        this.allContacts.add(contact);
         this.databaseHandler.addContact(contact);
         notifyDataSetChanged();
         return true;
     }
 
     public void insert(Contact contact, int position) {
-        this.contacts.add(position, contact);
+        this.allContacts.add(position, contact);
         notifyDataSetChanged();
     }
 
     public void remove(Contact contact) {
-        this.contacts.remove(contact);
+        this.allContacts.remove(contact);
         this.databaseHandler.deleteContact(contact);
         notifyDataSetChanged();
     }
 
     public Contact contactForUri(Uri uri) {
-        for (Contact contact : this.contacts) {
+        for (Contact contact : this.allContacts) {
             if (contact.uri == uri) {
                 return contact;
             }
@@ -91,7 +95,7 @@ public class ContactAdapter extends BaseAdapter {
     }
 
     public List<Contact> getContacts() {
-        return new ArrayList<Contact>(contacts);
+        return new ArrayList<Contact>(allContacts);
     }
 
     @Override
@@ -104,6 +108,9 @@ public class ContactAdapter extends BaseAdapter {
         }
 
         Contact contact = getItem(position);
+        if (contact == null) {
+            return view;
+        }
 
         ImageView profileThumbnail = (ImageView) view.findViewById(R.id.profileThumbnail);
         profileThumbnail.setImageBitmap(contact.getPhotoThumbnail(this.context.getContentResolver()));
@@ -123,15 +130,57 @@ public class ContactAdapter extends BaseAdapter {
         return view;
     }
 
+
+    private static final Comparator<Contact> BY_SCORE = new Comparator<Contact>() {
+        @Override
+        public int compare(Contact contact, Contact contact2) {
+            // Return descending; larger values have more priority
+            return -1 * contact.getScore().compareTo(contact2.getScore());
+        }
+    };
+
     @Override
     public void notifyDataSetChanged() {
-        Collections.sort(this.contacts, new Comparator<Contact>() {
-            @Override
-            public int compare(Contact contact, Contact contact2) {
-                // Return descending; larger values have more priority
-                return -1 * contact.getScore().compareTo(contact2.getScore());
-            }
-        });
+        Collections.sort(this.allContacts, BY_SCORE);
+        Collections.sort(this.visibleContacts, BY_SCORE);
+
         super.notifyDataSetChanged();
+    }
+
+    public List<Contact> getFilteredResults(CharSequence constraint) {
+        if (constraint == null || (constraint != null && constraint.equals(""))) {
+            return this.allContacts;
+        }
+
+        List<Contact> results = new ArrayList<Contact>();
+        for (Contact contact : this.allContacts) {
+            if (contact.displayName.toLowerCase().contains(constraint.toString().toLowerCase())) {
+                results.add(contact);
+            }
+        }
+        return results;
+    }
+
+    @Override
+    public Filter getFilter() {
+        return new Filter() {
+            @Override
+            protected FilterResults performFiltering(CharSequence constraint) {
+                List<Contact> filteredResults = getFilteredResults(constraint);
+
+                FilterResults results = new FilterResults();
+                results.values = filteredResults;
+
+                return results;
+            }
+
+            @Override
+            protected void publishResults(CharSequence charSequence, FilterResults filterResults) {
+                @SuppressWarnings("unchecked")
+                List<Contact> contacts = (List<Contact>) filterResults.values;
+                visibleContacts = contacts;
+                notifyDataSetChanged();
+            }
+        };
     }
 }

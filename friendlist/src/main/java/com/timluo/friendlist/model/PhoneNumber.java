@@ -1,7 +1,5 @@
 package com.timluo.friendlist.model;
 
-import java.util.Map;
-
 /**
  * Represents a phone number and its type (home, work, mobile, etc).
  */

@@ -2,13 +2,13 @@ package com.timluo.friendlist;
 
 import android.app.AlertDialog;
 import android.app.DatePickerDialog;
-import android.app.Dialog;
-import android.app.DialogFragment;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
 import android.net.Uri;
 import android.os.Bundle;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.util.Log;
 import android.view.ContextMenu;
 import android.view.LayoutInflater;
@@ -22,20 +22,14 @@ import android.widget.EditText;
 import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
-import android.widget.Toast;
 
-import org.joda.time.DateTimeConstants;
-import org.joda.time.Days;
-import org.joda.time.DurationField;
 import org.joda.time.LocalDate;
 import org.joda.time.Period;
-import org.joda.time.PeriodType;
 
 import java.util.Calendar;
 import java.util.List;
 
 import static android.provider.ContactsContract.Contacts;
-import static android.view.View.inflate;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MainActivity extends ListActivity {
@@ -45,6 +39,27 @@ public class MainActivity extends ListActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        setContentView(R.layout.activity_main);
+
+        EditText searchBox = (EditText) findViewById(R.id.inputSearch);
+        searchBox.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence filterText, int start, int count, int after) {
+                getContactAdapter().getFilter().filter(filterText);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                          int arg3) {
+                // No-op
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // No-op
+            }
+        });
 
         this.databaseHandler = new DatabaseHandler(this);
         List<Contact> contactList = this.databaseHandler.getAllContacts();
