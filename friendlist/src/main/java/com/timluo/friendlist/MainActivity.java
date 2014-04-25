@@ -209,6 +209,7 @@ public class MainActivity extends ListActivity {
                 case CONTACT_PICKER_REQUEST:
                     // Add new contact to list
                     Uri contactData = data.getData();
+
                     Contact contact = new Contact(contactData, getContentResolver());
                     if (!getContactAdapter().add(contact)) {
                         AlertDialog.Builder alert = new AlertDialog.Builder(this);

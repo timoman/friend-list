@@ -163,15 +163,8 @@ public class Contact {
     }
 
     public Bitmap getPhotoThumbnail(ContentResolver contentResolver) {
-        Uri photoUri = Uri.withAppendedPath(this.uri, Contacts.Photo.DISPLAY_PHOTO);
-//        try {
-            InputStream inputStream = Contacts.openContactPhotoInputStream(contentResolver, this.uri, true);
-            return BitmapFactory.decodeStream(inputStream);
-//        } catch (IOException e) {
-//            Log.w(MainActivity.TAG,
-//                    "Could not open contact photo for contact: " + this.displayName);
-//            return null;
-//        }
+        InputStream inputStream = Contacts.openContactPhotoInputStream(contentResolver, this.uri, true);
+        return BitmapFactory.decodeStream(inputStream);
     }
 
     public Double getScore() {
@@ -186,7 +179,8 @@ public class Contact {
 
         Contact contact = (Contact) o;
 
-        if (!this.uri.equals(contact.uri)) return false;
+        // Last path segment is the ID that we care about
+        if (!this.uri.getLastPathSegment().equals(contact.uri.getLastPathSegment())) return false;
 
         return true;
     }
