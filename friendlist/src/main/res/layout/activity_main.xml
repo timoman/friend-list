@@ -9,13 +9,32 @@
         android:focusable="true" android:focusableInTouchMode="true"
         android:layout_width="0px" android:layout_height="0px"/>
 
-    <!-- Editext for Search -->
-    <EditText android:id="@+id/inputSearch"
+    <FrameLayout
         android:layout_width="fill_parent"
         android:layout_height="wrap_content"
-        android:hint="@string/search_hint"
-        android:inputType="text"
-        android:windowSoftInputMode="stateHidden"/>
+        android:layout_marginTop="9dp"
+        android:padding="5dp">
+
+        <!-- Editext for Search -->
+        <EditText
+            android:id="@+id/inputSearch"
+            android:layout_width="fill_parent"
+            android:layout_height="match_parent"
+            android:padding="5dp"
+            android:hint="@string/search_hint"
+            android:inputType="text"
+            android:windowSoftInputMode="stateHidden"
+            android:singleLine="true" />
+
+        <Button
+            android:id="@+id/clearSearch"
+            android:layout_width="20dp"
+            android:layout_height="20dp"
+            android:layout_marginRight="10dp"
+            android:layout_gravity="right|center_vertical"
+            android:background="@drawable/ic_action_cancel" />
+
+    </FrameLayout>
 
     <!-- List View -->
     <ListView
