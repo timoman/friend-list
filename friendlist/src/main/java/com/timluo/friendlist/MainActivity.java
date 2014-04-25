@@ -42,36 +42,6 @@ public class MainActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        EditText searchBox = (EditText) findViewById(R.id.inputSearch);
-        searchBox.addTextChangedListener(new TextWatcher() {
-
-            @Override
-            public void onTextChanged(CharSequence filterText, int start, int count, int after) {
-                getContactAdapter().getFilter().filter(filterText);
-            }
-
-            @Override
-            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
-                                          int arg3) {
-                // No-op
-            }
-
-            @Override
-            public void afterTextChanged(Editable arg0) {
-                // No-op
-            }
-        });
-
-        Button clearSearchButton = (Button) findViewById(R.id.clearSearch);
-        clearSearchButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                EditText searchBox = (EditText) findViewById(R.id.inputSearch);
-                searchBox.setText("");
-                
-            }
-        });
-
         this.databaseHandler = new DatabaseHandler(this);
         List<Contact> contactList = this.databaseHandler.getAllContacts();
 
@@ -79,20 +49,8 @@ public class MainActivity extends ListActivity {
                 new ContactAdapter(this, R.layout.friend_list_item, contactList, this.databaseHandler);
         setListAdapter(adapter);
 
-        ListView listView = getListView();
-
-        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
-            public void onItemClick(AdapterView<?> parent, View view,
-                                    int position, long id) {
-                openContextMenu(view);
-            }
-        });
-        registerForContextMenu(listView);
-    }
-
-    @Override
-    protected void onPause() {
-        super.onPause();
+        setupSearchBox();
+        registerOnListViewClick();
     }
 
     @Override
@@ -126,21 +84,20 @@ public class MainActivity extends ListActivity {
         return super.onContextItemSelected(item);
     }
 
-    void deleteContact(int position) {
+    private void deleteContact(int position) {
         ContactAdapter adapter = getContactAdapter();
         Contact contact = adapter.getItem(position);
         adapter.remove(contact);
     }
 
-    void editContact(final int position) {
+    private void editContact(final int position) {
         String[] editContactArray = getResources().getStringArray(R.array.edit_contact_array);
+        // Menu for what field of the contact to edit
         AlertDialog editPicker = new AlertDialog.Builder(this)
-                                .setTitle("Edit Contact")
+                                .setTitle(getResources().getString(R.string.edit_contact))
                                 .setItems(editContactArray, new DialogInterface.OnClickListener() {
-                                    public void onClick(DialogInterface dialog, int which) {
-                                        // The 'which' argument contains the index position
-                                        // of the selected item
-                                        switch (which) {
+                                    public void onClick(DialogInterface dialog, int selectedIndex) {
+                                        switch (selectedIndex) {
                                             case 0:
                                                 editContactFrequency(position);
                                                 break;
@@ -148,9 +105,7 @@ public class MainActivity extends ListActivity {
                                                 editContactLastContacted(position);
                                                 break;
                                         }
-                                    }
-
-                                    ;
+                                    };
                                 }).create();
         addCancelButton(editPicker);
         editPicker.show();
@@ -159,6 +114,7 @@ public class MainActivity extends ListActivity {
     private void editContactLastContacted(int position) {
         ContactAdapter adapter = getContactAdapter();
         final Contact contact = adapter.getItem(position);
+        // Pick the last contacted date
         DatePickerDialog.OnDateSetListener dateSetListener = new DatePickerDialog.OnDateSetListener() {
             @Override
             public void onDateSet(DatePicker datePicker, int year, int month, int day) {
@@ -172,6 +128,7 @@ public class MainActivity extends ListActivity {
                 refreshAdapter();
             }
         };
+        // Set the default date on the DatePicker to be the last contacted date.
         LocalDate oldDate = contact.getLastContacted();
         DatePickerDialog datePicker = new DatePickerDialog(this, dateSetListener,
                 oldDate.getYear(), oldDate.minusMonths(1).getMonthOfYear(), oldDate.getDayOfMonth());
@@ -183,17 +140,12 @@ public class MainActivity extends ListActivity {
         ContactAdapter adapter = getContactAdapter();
         final Contact contact = adapter.getItem(position);
 
-        // Get the layout inflater
         LayoutInflater inflater = getLayoutInflater();
-
         final View view = inflater.inflate(R.layout.contact_frequency_layout, null);
         AlertDialog dialog = new AlertDialog.Builder(this)
-        // Inflate and set the layout for the dialog
-        // Pass null as the parent view because its going in the dialog layout
         .setView(view)
-
-        // Add action buttons
-        .setPositiveButton("Save", new DialogInterface.OnClickListener() {
+        .setPositiveButton(getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+            // Set the contact's days to contact, calculating from value + time unit
             @Override
             public void onClick(DialogInterface dialog, int id) {
                 final EditText timeValueField = (EditText) view.findViewById(R.id.time_value);
@@ -258,6 +210,7 @@ public class MainActivity extends ListActivity {
         if (resultCode == RESULT_OK) {
             switch (requestCode) {
                 case CONTACT_PICKER_REQUEST:
+                    // Add new contact to list
                     Uri contactData = data.getData();
                     Contact contact = new Contact(contactData, getContentResolver());
                     if (!getContactAdapter().add(contact)) {
@@ -292,7 +245,6 @@ public class MainActivity extends ListActivity {
         });
     }
 
-
     /* Action bar option menu */
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -303,9 +255,6 @@ public class MainActivity extends ListActivity {
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        // Handle action bar item clicks here. The action bar will
-        // automatically handle clicks on the Home/Up button, so long
-        // as you specify a parent activity in AndroidManifest.xml.
         switch (item.getItemId()) {
             case R.id.action_settings:
                 return true;
@@ -330,5 +279,48 @@ public class MainActivity extends ListActivity {
         dialog.setCancelable(true);
     }
 
+
+    private void setupSearchBox() {
+        EditText searchBox = (EditText) findViewById(R.id.inputSearch);
+        searchBox.addTextChangedListener(new TextWatcher() {
+
+            @Override
+            public void onTextChanged(CharSequence filterText, int start, int count, int after) {
+                getContactAdapter().getFilter().filter(filterText);
+            }
+
+            @Override
+            public void beforeTextChanged(CharSequence arg0, int arg1, int arg2,
+                                          int arg3) {
+                // No-op
+            }
+
+            @Override
+            public void afterTextChanged(Editable arg0) {
+                // No-op
+            }
+        });
+
+        Button clearSearchButton = (Button) findViewById(R.id.clearSearch);
+        clearSearchButton.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                EditText searchBox = (EditText) findViewById(R.id.inputSearch);
+                searchBox.setText("");
+            }
+        });
+    }
+
+    private void registerOnListViewClick() {
+
+        ListView listView = getListView();
+        listView.setOnItemClickListener(new AdapterView.OnItemClickListener() {
+            public void onItemClick(AdapterView<?> parent, View view,
+                                    int position, long id) {
+                openContextMenu(view);
+            }
+        });
+        registerForContextMenu(listView);
+    }
 
 }

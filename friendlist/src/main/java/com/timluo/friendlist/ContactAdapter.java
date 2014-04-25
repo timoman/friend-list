@@ -28,13 +28,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
     private Context context;
     private DatabaseHandler databaseHandler;
 
-
-    private static DecimalFormat SCORE_FORMAT = new DecimalFormat("0.00");
-
-    public ContactAdapter(Context context, int resource) {
-        this.resource = resource;
-        this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-    }
+    private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.00");
 
     public ContactAdapter(Context context, int resource, List<Contact> contacts, DatabaseHandler databaseHandler) {
         this.context = context;

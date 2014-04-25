@@ -8,9 +8,11 @@
 
     <string name="delete_contact">Delete</string>
     <string name="bump_contact">Bump</string>
-    <string name="edit_contact">Edit details</string>
+    <string name="edit_contact">Edit Contact</string>
 
-    <string name="search_hint">Search...</string>
+    <string name="search_hint">Search&#8230;</string>
+
+    <string name="save">Save</string>
 
 
     <string-array name="edit_contact_array">
