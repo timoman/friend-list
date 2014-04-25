@@ -21,7 +21,6 @@
     </string-array>
 
     <string-array name="time_resolution_array">
-        <item>Hours</item>
         <item>Days</item>
         <item>Weeks</item>
         <item>Months</item>

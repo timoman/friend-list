@@ -133,6 +133,7 @@ public class MainActivity extends ListActivity {
         DatePickerDialog datePicker = new DatePickerDialog(this, dateSetListener,
                 oldDate.getYear(), oldDate.minusMonths(1).getMonthOfYear(), oldDate.getDayOfMonth());
         addCancelButton(datePicker);
+        datePicker.getDatePicker().setCalendarViewShown(true);
         datePicker.show();
     }
 
@@ -155,11 +156,7 @@ public class MainActivity extends ListActivity {
                 String timeResolution = timeResolutionField.getSelectedItem().toString().toLowerCase();
 
                 Period period;
-                // TODO: can't do partial days, so hour screws things up... either remove hour or make daysToContact a double instead of a Days
-                if (timeResolution.contains("hour")) {
-                    period = Period.hours(timeValue);
-                }
-                else if (timeResolution.contains("day")) {
+                if (timeResolution.contains("day")) {
                     period = Period.days(timeValue);
                 }
                 else if (timeResolution.contains("week")) {
