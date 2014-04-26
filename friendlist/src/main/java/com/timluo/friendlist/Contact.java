@@ -6,6 +6,7 @@ import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.net.Uri;
 import android.provider.ContactsContract;
+import android.util.Log;
 
 import com.timluo.friendlist.model.PhoneNumber;
 
@@ -27,11 +28,15 @@ public class Contact {
     Uri uri;
     Days daysToContact;
     LocalDate lastContacted;
+    Double score;
 
     long lastUpdated;
 
     String displayName;
     List<PhoneNumber> phoneNumbers;
+
+    //TODO: examine memory ramifications of caching all photos
+    Bitmap photo;
 
     public Contact(Uri uri) {
         this.uri = uri;
@@ -42,7 +47,7 @@ public class Contact {
         refresh(contentResolver);
         //TODO:
         this.daysToContact = Days.THREE;
-        this.lastContacted = LocalDate.now();new DateTime().withYear(1970).withMonthOfYear(1).withDayOfMonth(1).withTimeAtStartOfDay();
+        this.lastContacted = LocalDate.now();
     }
 
     public Contact(Contact toCopy) {
@@ -66,12 +71,13 @@ public class Contact {
 
     public void setDaysToContact(Days daysToContact) {
         this.daysToContact = daysToContact;
+        this.score = calculateScore();
     }
 
     public void setLastContacted(LocalDate lastContacted) {
         this.lastContacted = lastContacted;
+        this.score = calculateScore();
     }
-
 
     public void setLastUpdated(long lastUpdated) {
         this.lastUpdated = lastUpdated;
@@ -163,13 +169,24 @@ public class Contact {
     }
 
     public Bitmap getPhotoThumbnail(ContentResolver contentResolver) {
-        InputStream inputStream = Contacts.openContactPhotoInputStream(contentResolver, this.uri, true);
-        return BitmapFactory.decodeStream(inputStream);
+        if (this.photo == null) {
+            InputStream inputStream = Contacts.openContactPhotoInputStream(contentResolver, this.uri, false);
+            this.photo = BitmapFactory.decodeStream(inputStream);
+        }
+        return this.photo;
     }
 
     public Double getScore() {
-        int days = Days.daysBetween(this.lastContacted, LocalDate.now()).getDays();
-        return Double.valueOf(days) / this.daysToContact.getDays();
+        return this.score;
+    }
+
+    private Double calculateScore() {
+        if (this.lastContacted != null && this.daysToContact != null) {
+            int days = Days.daysBetween(this.lastContacted, LocalDate.now()).getDays();
+            return Double.valueOf(days) / this.daysToContact.getDays();
+        }
+        Log.i(MainActivity.TAG, "calculated score");
+        return null;
     }
 
     @Override

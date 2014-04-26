@@ -1,7 +1,9 @@
 package com.timluo.friendlist;
 
 import android.content.Context;
+import android.graphics.Bitmap;
 import android.net.Uri;
+import android.os.AsyncTask;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -92,34 +94,62 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         return new ArrayList<Contact>(allContacts);
     }
 
+    static class ViewHolder {
+        ImageView profileThumbnail;
+        TextView nameText;
+        TextView lastContactedText;
+        TextView scoreText;
+        TextView frequencyText;
+        int position;
+    }
+
     @Override
-    public View getView(int position, View convertView, ViewGroup parent) {
+    public View getView(final int position, View convertView, ViewGroup parent) {
         View view;
+        ViewHolder holder;
         if (convertView == null) {
             view = this.inflater.inflate(this.resource, parent, false);
+            holder = new ViewHolder();
+            holder.profileThumbnail = (ImageView) view.findViewById(R.id.profileThumbnail);
+            holder.nameText = (TextView) view.findViewById(R.id.contactName);
+            holder.lastContactedText = (TextView) view.findViewById(R.id.lastContacted);
+            holder.scoreText = (TextView) view.findViewById(R.id.contactScore);
+            holder.frequencyText = (TextView) view.findViewById(R.id.contactFrequency);
+            view.setTag(holder);
         } else {
             view = convertView;
+            holder = (ViewHolder) view.getTag();
         }
+        holder.position = position;
 
-        Contact contact = getItem(position);
+        final Contact contact = getItem(position);
         if (contact == null) {
             return view;
         }
 
-        ImageView profileThumbnail = (ImageView) view.findViewById(R.id.profileThumbnail);
-        profileThumbnail.setImageBitmap(contact.getPhotoThumbnail(this.context.getContentResolver()));
+        holder.profileThumbnail.setImageBitmap(null);
+        new AsyncTask<ViewHolder, Void, Bitmap>() {
+            private ViewHolder v;
 
-        TextView nameText = (TextView) view.findViewById(R.id.contactName);
-        nameText.setText(contact.getDisplayName());
+            @Override
+            protected Bitmap doInBackground(ViewHolder... params) {
+                v = params[0];
+                return contact.getPhotoThumbnail(context.getContentResolver());
+            }
 
-        TextView lastContactedText = (TextView) view.findViewById(R.id.lastContacted);
-        lastContactedText.setText("Last Contacted: " + contact.getLastContacted().toString());
+            @Override
+            protected void onPostExecute(Bitmap result) {
+                super.onPostExecute(result);
+                if (v.position == position) {
+                    v.profileThumbnail.setImageBitmap(result);
+                }
+            }
+        }.execute(holder);
 
-        TextView scoreText = (TextView) view.findViewById(R.id.contactScore);
-        scoreText.setText("Score: " + SCORE_FORMAT.format(contact.getScore()));
-
-        TextView frequencyText = (TextView) view.findViewById(R.id.contactFrequency);
-        frequencyText.setText("Contact every " + contact.getDaysToContact().getDays() + " days");
+        holder.nameText.setText(contact.getDisplayName());
+        holder.lastContactedText.setText("Last Contacted: " + contact.getLastContacted().toString());
+        holder.scoreText.setText("Score: " + SCORE_FORMAT.format(contact.getScore()));
+        holder.frequencyText.setText("Contact every " + contact.getDaysToContact().getDays() + " days");
 
         return view;
     }
