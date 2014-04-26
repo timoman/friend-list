@@ -127,7 +127,6 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
             return view;
         }
 
-        holder.profileThumbnail.setImageBitmap(null);
         new AsyncTask<ViewHolder, Void, Bitmap>() {
             private ViewHolder v;
 
