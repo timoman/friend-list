@@ -95,6 +95,10 @@ public class Contact {
         return this.uri;
     }
 
+    public String getId() {
+        return this.uri.getLastPathSegment();
+    }
+
     public Days getDaysToContact() {
         return this.daysToContact;
     }
@@ -185,7 +189,6 @@ public class Contact {
             int days = Days.daysBetween(this.lastContacted, LocalDate.now()).getDays();
             return Double.valueOf(days) / this.daysToContact.getDays();
         }
-        Log.i(MainActivity.TAG, "calculated score");
         return null;
     }
 
