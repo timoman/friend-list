@@ -95,6 +95,10 @@ public class Contact {
         return this.uri;
     }
 
+    public String getId() {
+        return this.uri.getLastPathSegment();
+    }
+
     public Days getDaysToContact() {
         return this.daysToContact;
     }

@@ -5,6 +5,7 @@ import android.app.DatePickerDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.net.Uri;
 import android.os.Bundle;
 import android.text.Editable;
@@ -36,6 +37,7 @@ import static android.widget.AdapterView.AdapterContextMenuInfo;
 public class MainActivity extends ListActivity {
     public static final String TAG = "MainActivity";
     private DatabaseHandler databaseHandler;
+    private SMSReceiver smsReceiver;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -51,12 +53,18 @@ public class MainActivity extends ListActivity {
 
         setupSearchBox();
         registerOnListViewClick();
+
+        this.smsReceiver = new SMSReceiver(getContactAdapter());
+        registerReceiver(this.smsReceiver, new IntentFilter("android.provider.Telephony.SMS_RECEIVED"));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         this.databaseHandler.close();
+
+        // TODO: unregister on destroy for now, though maybe we want to keep it running in the future?
+        unregisterReceiver(this.smsReceiver);
     }
 
     /* Contacts context menu */
