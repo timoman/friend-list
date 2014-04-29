@@ -5,10 +5,8 @@ import android.app.DatePickerDialog;
 import android.app.ListActivity;
 import android.content.DialogInterface;
 import android.content.Intent;
-import android.database.Cursor;
 import android.net.Uri;
 import android.os.Bundle;
-import android.provider.Telephony;
 import android.text.Editable;
 import android.text.TextWatcher;
 import android.util.Log;
@@ -26,7 +24,6 @@ import android.widget.ListAdapter;
 import android.widget.ListView;
 import android.widget.Spinner;
 
-import org.joda.time.DateTimeZone;
 import org.joda.time.LocalDate;
 import org.joda.time.Period;
 
@@ -34,7 +31,6 @@ import java.util.Calendar;
 import java.util.List;
 
 import static android.provider.ContactsContract.Contacts;
-import static android.provider.Telephony.TextBasedSmsColumns;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
 
 public class MainActivity extends ListActivity {
@@ -55,47 +51,6 @@ public class MainActivity extends ListActivity {
 
         setupSearchBox();
         registerOnListViewClick();
-    }
-
-    @Override
-    protected void onResume() {
-        super.onResume();
-        final String[] threadProjection = { TextBasedSmsColumns.PERSON, TextBasedSmsColumns.THREAD_ID};
-        for (Contact contact : getContactAdapter().getContacts()) {
-            String contactId = contact.getId();
-            Cursor threadIdCursor = getContentResolver().query(Uri.parse("content://sms/inbox"), threadProjection, "person = " + contactId, null, null);
-            if (threadIdCursor.getCount() <= 0) {
-                continue;
-            }
-            threadIdCursor.moveToFirst();
-            String threadId = threadIdCursor.getString(threadIdCursor.getColumnIndex(TextBasedSmsColumns.THREAD_ID));
-
-            final String[] timeProjection = { TextBasedSmsColumns.THREAD_ID, TextBasedSmsColumns.DATE};
-            Cursor cursor = getContentResolver().query(Uri.parse("content://sms/"), timeProjection, "thread_id = " + threadId, null, TextBasedSmsColumns.DATE + " DESC");
-            cursor.moveToFirst();
-
-            Long latestTextTimestamp = Long.parseLong(cursor.getString(cursor.getColumnIndex(TextBasedSmsColumns.DATE)));
-            Long lastContacted = contact.getLastContacted().toDateTimeAtCurrentTime(DateTimeZone.getDefault()).getMillis();
-            if (latestTextTimestamp > lastContacted) {
-                contact.setLastContacted(new LocalDate(latestTextTimestamp));
-                Log.i(TAG, "Updated from " + lastContacted + " to " + latestTextTimestamp + " for " + contact.getDisplayName());
-            }
-            refreshAdapter();
-        }
-
-//        Cursor threadCursor = getContentResolver().query(Uri.parse("content://sms/conversations/"), null, "WHERE person = ", null, null);
-//        Cursor cursor = getContentResolver().query(Uri.parse("content://sms/conversations/"), null, null, null, null);
-//        cursor.moveToFirst();
-//
-//        do {
-//            String msgData = "";
-//            for(int idx=0;idx<cursor.getColumnCount();idx++)
-//            {
-//                msgData += " " + cursor.getColumnName(idx) + ":" + cursor.getString(idx) + "\n";
-//            }
-//            Log.i(TAG, msgData);
-//            Log.i(TAG, "\n\n\n");
-//        } while(cursor.moveToNext());
     }
 
     @Override
