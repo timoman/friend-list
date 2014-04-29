@@ -185,7 +185,6 @@ public class Contact {
             int days = Days.daysBetween(this.lastContacted, LocalDate.now()).getDays();
             return Double.valueOf(days) / this.daysToContact.getDays();
         }
-        Log.i(MainActivity.TAG, "calculated score");
         return null;
     }
 
