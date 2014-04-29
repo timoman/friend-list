@@ -46,14 +46,14 @@ public class Contact {
         this.uri = uri;
         refresh(contentResolver);
         //TODO:
-        this.daysToContact = Days.THREE;
-        this.lastContacted = LocalDate.now();
+        setDaysToContact(Days.THREE);
+        setLastContacted(LocalDate.now());
     }
 
     public Contact(Contact toCopy) {
         this.uri = toCopy.uri;
-        this.daysToContact = toCopy.daysToContact;
-        this.lastContacted = toCopy.lastContacted;
+        setDaysToContact(toCopy.daysToContact);
+        setLastContacted(toCopy.lastContacted);
 
         this.displayName = toCopy.displayName;
         this.phoneNumbers = new ArrayList<PhoneNumber>(toCopy.phoneNumbers);
