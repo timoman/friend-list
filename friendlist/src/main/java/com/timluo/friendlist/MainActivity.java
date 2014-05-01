@@ -136,6 +136,7 @@ public class MainActivity extends ListActivity {
                 newLastContacted.minusMonths(1);
                 contact.setLastContacted(newLastContacted);
                 getContactAdapter().add(contact);
+                refreshAdapter();
             }
         };
         // Set the default date on the DatePicker to be the last contacted date.
