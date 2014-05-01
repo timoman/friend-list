@@ -94,6 +94,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
 
     public void remove(Contact contact) {
         this.allContacts.remove(contact);
+        this.visibleContacts.remove(contact);
         this.databaseHandler.deleteContact(contact);
         notifyDataSetChanged();
     }
