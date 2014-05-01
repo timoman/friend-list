@@ -135,6 +135,13 @@ public class MainActivity extends ListActivity {
                 LocalDate newLastContacted = LocalDate.fromCalendarFields(calendar);
                 newLastContacted.minusMonths(1);
                 contact.setLastContacted(newLastContacted);
+                doWithHandle(getBaseContext(), new DatabaseHandler.DatabaseHandlerCallback<Void>() {
+                    @Override
+                    public Void doWithDatabase(DatabaseHandler handler) {
+                        handler.addContact(contact);
+                        return null;
+                    }
+                });
                 getContactAdapter().add(contact);
                 refreshAdapter();
             }
@@ -182,6 +189,14 @@ public class MainActivity extends ListActivity {
                     period = Period.days(365 * timeValue);
                 }
                 contact.setDaysToContact(period.toStandardDays());
+                // TODO: why do we need this here if we do the same thing in the contact adapter below? Does it not work there?
+                doWithHandle(getBaseContext(), new DatabaseHandler.DatabaseHandlerCallback<Void>() {
+                    @Override
+                    public Void doWithDatabase(DatabaseHandler handler) {
+                        handler.addContact(contact);
+                        return null;
+                    }
+                });
                 getContactAdapter().add(contact);
                 refreshAdapter();
             }
