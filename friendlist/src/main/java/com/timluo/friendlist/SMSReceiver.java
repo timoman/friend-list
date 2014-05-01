@@ -6,6 +6,7 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
 import android.util.Log;
+import android.widget.Toast;
 
 import org.joda.time.LocalDate;
 
@@ -30,7 +31,7 @@ public class SMSReceiver extends BroadcastReceiver {
         {
             Object[] smsextras = (Object[]) extras.get( "pdus" );
             //TODO: are these smsextras ever from different contacts?
-            for ( int i = 0; i < smsextras.length; i++ ) {
+            for (int i = 0; i < smsextras.length; i++ ) {
                 SmsMessage smsmsg = SmsMessage.createFromPdu((byte[]) smsextras[i]);
                 String fromAddress = smsmsg.getOriginatingAddress();
 
@@ -39,11 +40,17 @@ public class SMSReceiver extends BroadcastReceiver {
                 String fromId = this.adapter.getContactIdByNumber(fromAddress);
                 if (fromId != null) {
                     Contact contact = this.adapter.contactForId(fromId);
-                    if (contact != null) {
+                    // Don't do anything if the person is already at the bottom of the list
+                    if (contact != null &&
+                            !this.adapter.getContacts().get(this.adapter.getContacts().size() - 1).equals(contact)) {
                         contact.setLastContacted(LocalDate.now());
+                        this.adapter.update(contact);
                         this.adapter.notifyDataSetChanged();
-                        Log.i(TAG, "Updated contact " + contact.getDisplayName());
-                        //TODO: Probably pop up a Toast message here informing the user? Also perhaps add an undo button
+
+                        CharSequence text = "Moved " + contact.getDisplayName() + " to bottom of list.";
+                        int duration = Toast.LENGTH_LONG;
+                        Toast toast = Toast.makeText(context, text, duration);
+                        toast.show();
                     }
                 }
             }

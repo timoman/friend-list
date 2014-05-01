@@ -74,6 +74,19 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         return true;
     }
 
+    /**
+     * Persists a contact. Only works if the contact already exists.
+     * @param contact   the contact to persist
+     * @return          success of the persistence
+     */
+    public boolean update(Contact contact) {
+        if (this.allContacts.contains(contact)) {
+            this.databaseHandler.addContact(contact);
+            return true;
+        }
+        return false;
+    }
+
     public void insert(Contact contact, int position) {
         this.allContacts.add(position, contact);
         notifyDataSetChanged();
@@ -104,7 +117,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
     }
 
     public List<Contact> getContacts() {
-        return new ArrayList<Contact>(allContacts);
+        return new ArrayList<Contact>(this.allContacts);
     }
 
     static class ViewHolder {
