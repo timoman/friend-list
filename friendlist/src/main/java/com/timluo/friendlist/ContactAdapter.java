@@ -23,6 +23,8 @@ import java.util.Collections;
 import java.util.Comparator;
 import java.util.List;
 
+import static com.timluo.friendlist.DatabaseHandler.doWithHandle;
+
 /**
  * ArrayAdapter for {@link Contact} objects.
  */
@@ -32,17 +34,15 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
     private List<Contact> allContacts = new ArrayList<Contact>();
     private List<Contact> visibleContacts = new ArrayList<Contact>();
     private Context context;
-    private DatabaseHandler databaseHandler;
 
     private static final DecimalFormat SCORE_FORMAT = new DecimalFormat("0.00");
 
-    public ContactAdapter(Context context, int resource, List<Contact> contacts, DatabaseHandler databaseHandler) {
+    public ContactAdapter(Context context, int resource, List<Contact> contacts) {
         this.context = context;
         this.resource = resource;
         this.inflater = (LayoutInflater) context.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
         this.allContacts = contacts;
         this.visibleContacts = this.allContacts;
-        this.databaseHandler = databaseHandler;
         notifyDataSetChanged();
     }
 
@@ -64,12 +64,18 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         return position;
     }
 
-    public boolean add(Contact contact) {
+    public boolean add(final Contact contact) {
         if (this.allContacts.contains(contact)) {
             return false;
         }
         this.allContacts.add(contact);
-        this.databaseHandler.addContact(contact);
+        doWithHandle(this.context, new DatabaseHandler.DatabaseHandlerCallback<Void>() {
+            @Override
+            public Void doWithDatabase(DatabaseHandler handler) {
+                handler.addContact(contact);
+                return null;
+            }
+        });
         notifyDataSetChanged();
         return true;
     }
@@ -79,9 +85,15 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
      * @param contact   the contact to persist
      * @return          success of the persistence
      */
-    public boolean update(Contact contact) {
+    public boolean update(final Contact contact) {
         if (this.allContacts.contains(contact)) {
-            this.databaseHandler.addContact(contact);
+            doWithHandle(this.context, new DatabaseHandler.DatabaseHandlerCallback<Void>() {
+                @Override
+                public Void doWithDatabase(DatabaseHandler handler) {
+                    handler.addContact(contact);
+                    return null;
+                }
+            });
             return true;
         }
         return false;
@@ -92,10 +104,16 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
         notifyDataSetChanged();
     }
 
-    public void remove(Contact contact) {
+    public void remove(final Contact contact) {
         this.allContacts.remove(contact);
         this.visibleContacts.remove(contact);
-        this.databaseHandler.deleteContact(contact);
+        doWithHandle(this.context, new DatabaseHandler.DatabaseHandlerCallback<Void>() {
+            @Override
+            public Void doWithDatabase(DatabaseHandler handler) {
+                handler.deleteContact(contact);
+                return null;
+            }
+        });
         notifyDataSetChanged();
     }
 

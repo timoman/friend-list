@@ -33,10 +33,10 @@ import java.util.List;
 
 import static android.provider.ContactsContract.Contacts;
 import static android.widget.AdapterView.AdapterContextMenuInfo;
+import static com.timluo.friendlist.DatabaseHandler.doWithHandle;
 
 public class MainActivity extends ListActivity {
     public static final String TAG = "MainActivity";
-    private DatabaseHandler databaseHandler;
     private SMSReceiver smsReceiver;
 
     @Override
@@ -44,11 +44,15 @@ public class MainActivity extends ListActivity {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_main);
 
-        this.databaseHandler = new DatabaseHandler(this);
-        List<Contact> contactList = this.databaseHandler.getAllContacts();
+        List<Contact> contactList = doWithHandle(this, new DatabaseHandler.DatabaseHandlerCallback<List<Contact>>() {
+            @Override
+            public List<Contact> doWithDatabase(DatabaseHandler handler) {
+                return handler.getAllContacts();
+            }
+        });
 
         ListAdapter adapter =
-                new ContactAdapter(this, R.layout.friend_list_item, contactList, this.databaseHandler);
+                new ContactAdapter(this, R.layout.friend_list_item, contactList);
         setListAdapter(adapter);
 
         setupSearchBox();
@@ -61,7 +65,6 @@ public class MainActivity extends ListActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        this.databaseHandler.close();
 
         // TODO: unregister on destroy for now, though maybe we want to keep it running in the future?
         unregisterReceiver(this.smsReceiver);
@@ -132,8 +135,7 @@ public class MainActivity extends ListActivity {
                 LocalDate newLastContacted = LocalDate.fromCalendarFields(calendar);
                 newLastContacted.minusMonths(1);
                 contact.setLastContacted(newLastContacted);
-                databaseHandler.addContact(contact);
-                refreshAdapter();
+                getContactAdapter().add(contact);
             }
         };
         // Set the default date on the DatePicker to be the last contacted date.
@@ -179,7 +181,7 @@ public class MainActivity extends ListActivity {
                     period = Period.days(365 * timeValue);
                 }
                 contact.setDaysToContact(period.toStandardDays());
-                databaseHandler.addContact(contact);
+                getContactAdapter().add(contact);
                 refreshAdapter();
             }
         })

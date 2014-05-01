@@ -32,12 +32,25 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     private Context context;
 
+    public interface DatabaseHandlerCallback<T> {
+        T doWithDatabase(DatabaseHandler handler);
+    }
+
+    public static <T> T doWithHandle(Context context, DatabaseHandlerCallback<T> callback) {
+        DatabaseHandler databaseHandler = new DatabaseHandler(context);
+        try {
+            return callback.doWithDatabase(databaseHandler);
+        }
+        finally {
+            databaseHandler.close();
+        }
+    }
+
 
     public DatabaseHandler(Context context) {
         super(context, DATABASE_NAME, null, DATABASE_VERSION);
         this.context = context;
     }
-
 
     @Override
     public void onCreate(SQLiteDatabase db) {

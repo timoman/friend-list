@@ -33,10 +33,6 @@ public class Contact {
     long lastUpdated;
 
     String displayName;
-    List<PhoneNumber> phoneNumbers;
-
-    //TODO: examine memory ramifications of caching all photos
-    Bitmap photo;
 
     public Contact(Uri uri) {
         this.uri = uri;
@@ -56,14 +52,12 @@ public class Contact {
         setLastContacted(toCopy.lastContacted);
 
         this.displayName = toCopy.displayName;
-        this.phoneNumbers = new ArrayList<PhoneNumber>(toCopy.phoneNumbers);
         this.lastUpdated = toCopy.lastUpdated;
     }
 
     public void refresh(ContentResolver contentResolver) {
         if (this.lastUpdated < getLastUpdated(contentResolver)) {
             this.displayName = refreshDisplayName(contentResolver);
-            this.phoneNumbers = refreshPhoneNumbers(contentResolver);
             this.lastUpdated = System.currentTimeMillis();
         }
         this.lastUpdated = System.currentTimeMillis();
@@ -87,10 +81,6 @@ public class Contact {
         this.displayName = displayName;
     }
 
-    public void setPhoneNumbers(List<PhoneNumber> phoneNumbers) {
-        this.phoneNumbers = phoneNumbers;
-    }
-
     public Uri getUri() {
         return this.uri;
     }
@@ -109,10 +99,6 @@ public class Contact {
 
     public String getDisplayName() {
         return this.displayName;
-    }
-
-    public List<PhoneNumber> getPhoneNumbers() {
-        return this.phoneNumbers;
     }
 
     private List<PhoneNumber> refreshPhoneNumbers(ContentResolver contentResolver) {
@@ -173,11 +159,8 @@ public class Contact {
     }
 
     public Bitmap getPhotoThumbnail(ContentResolver contentResolver) {
-        if (this.photo == null) {
-            InputStream inputStream = Contacts.openContactPhotoInputStream(contentResolver, this.uri, false);
-            this.photo = BitmapFactory.decodeStream(inputStream);
-        }
-        return this.photo;
+        InputStream inputStream = Contacts.openContactPhotoInputStream(contentResolver, this.uri, false);
+        return BitmapFactory.decodeStream(inputStream);
     }
 
     public Double getScore() {
