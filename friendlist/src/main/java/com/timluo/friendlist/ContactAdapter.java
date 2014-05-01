@@ -234,6 +234,7 @@ public class ContactAdapter extends BaseAdapter implements Filterable {
     }
 
     public String getContactIdByNumber(String number) {
+        //TODO: does this sanitize the numbers (get rid of +'s, ()'s, etc.
         Uri uri = Uri.withAppendedPath(ContactsContract.PhoneLookup.CONTENT_FILTER_URI, Uri.encode(number));
         String contactId = "?";
 

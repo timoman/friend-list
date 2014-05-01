@@ -5,7 +5,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.telephony.SmsMessage;
-import android.util.Log;
 import android.widget.Toast;
 
 import org.joda.time.LocalDate;
@@ -14,8 +13,6 @@ import org.joda.time.LocalDate;
  * Receives incoming SMS messages.
  */
 public class SMSReceiver extends BroadcastReceiver {
-    private final String TAG = this.getClass().getSimpleName();
-
     private ContactAdapter adapter;
 
     public SMSReceiver(ContactAdapter adapter) {
@@ -27,8 +24,7 @@ public class SMSReceiver extends BroadcastReceiver {
     {
         Bundle extras = intent.getExtras();
 
-        if ( extras != null )
-        {
+        if (extras != null) {
             Object[] smsextras = (Object[]) extras.get( "pdus" );
             //TODO: are these smsextras ever from different contacts?
             for (int i = 0; i < smsextras.length; i++ ) {
