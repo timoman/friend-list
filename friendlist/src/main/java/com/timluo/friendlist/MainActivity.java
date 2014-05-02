@@ -212,11 +212,17 @@ public class MainActivity extends ListActivity {
 
     void bumpContact(int position) {
         ContactAdapter adapter = getContactAdapter();
-        Contact contact = adapter.getItem(position);
+        final Contact contact = adapter.getItem(position);
         contact.setLastContacted(LocalDate.now());
-        // Remove from list, then add to end
-        adapter.remove(contact);
-        adapter.add(contact);
+
+        doWithHandle(getBaseContext(), new DatabaseHandler.DatabaseHandlerCallback<Void>() {
+            @Override
+            public Void doWithDatabase(DatabaseHandler handler) {
+                handler.addContact(contact);
+                return null;
+            }
+        });
+
         refreshAdapter();
     }
     /* End Contacts context menu */
