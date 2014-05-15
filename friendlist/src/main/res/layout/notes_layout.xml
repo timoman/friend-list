@@ -1,0 +1,29 @@
+<?xml version="1.0" encoding="utf-8"?>
+
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:orientation="horizontal"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent">
+
+    <!--<EditText-->
+        <!--android:id="@+id/notes"-->
+        <!--android:layout_width="0dip"-->
+        <!--android:layout_height="wrap_content"-->
+        <!--android:layout_weight="1"-->
+        <!--android:ems="10"-->
+        <!--android:hint="Add some notes"-->
+        <!--android:inputType="textMultiLine"-->
+        <!--android:maxLength="2000"-->
+        <!--android:lines="6"-->
+        <!--android:maxLines="6"-->
+        <!--android:scrollHorizontally="false"-->
+        <!--android:scrollbars="vertical" />-->
+    <EditText
+        android:id="@+id/notes"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        android:gravity="top"
+        android:inputType="textMultiLine"
+        android:layout_weight="1"
+        android:lines="6"/>
+</LinearLayout>

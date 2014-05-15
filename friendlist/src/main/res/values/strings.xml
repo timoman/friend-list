@@ -16,6 +16,7 @@
 
 
     <string-array name="edit_contact_array">
+        <item>Notes</item>
         <item>How often</item>
         <item>Last Contacted</item>
     </string-array>

@@ -17,7 +17,7 @@ import java.util.List;
  * SQLite database for {@link Contact}s
  */
 public class DatabaseHandler extends SQLiteOpenHelper {
-    private static final int DATABASE_VERSION = 3;
+    private static final int DATABASE_VERSION = 4;
     // Database Name
     private static final String DATABASE_NAME = "contactsManager";
 
@@ -29,6 +29,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     private static final String URI = "uri";
     private static final String DAYS_TO_CONTACT = "contact_frequency_target_days";
     private static final String LAST_CONTACTED = "last_contacted";
+    private static final String NOTES = "notes";
 
     private Context context;
 
@@ -63,21 +64,23 @@ public class DatabaseHandler extends SQLiteOpenHelper {
 
     @Override
     public void onUpgrade(SQLiteDatabase db, int i, int i2) {
-        // Drop older table if existed
-        db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
+        if (i == 2 && i2 == 3) {
+            db.execSQL("DROP TABLE IF EXISTS " + TABLE_CONTACTS);
+            return;
+        }
 
-        // Create tables again
-        onCreate(db);
+        if (i == 3 && i2 == 4) {
+            db.execSQL("ALTER TABLE " + TABLE_CONTACTS
+                    + " ADD " + NOTES + " TEXT");
+            return;
+        }
     }
 
     // Adding new contact
     public void addContact(Contact contact) {
         SQLiteDatabase db = this.getWritableDatabase();
         try {
-            ContentValues values = new ContentValues();
-            values.put(URI, contact.getUri().toString());
-            values.put(DAYS_TO_CONTACT, contact.getDaysToContact().getDays());
-            values.put(LAST_CONTACTED, contact.getLastContacted().toString());
+            ContentValues values = contactToContentValues(contact);
 
             // Replace/update existing record
             db.insertWithOnConflict(TABLE_CONTACTS, null, values, SQLiteDatabase.CONFLICT_REPLACE);
@@ -105,6 +108,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         Contact contact = new Contact(Uri.parse(cursor.getString(cursor.getColumnIndex(URI))));
         contact.setDaysToContact(Days.days(cursor.getInt(cursor.getColumnIndex(DAYS_TO_CONTACT))));
         contact.setLastContacted(LocalDate.parse(cursor.getString(cursor.getColumnIndex(LAST_CONTACTED))));
+        contact.setNotes(cursor.getString(cursor.getColumnIndex(NOTES)));
         contact.refresh(this.context.getContentResolver());
         return contact;
     }
@@ -146,10 +150,7 @@ public class DatabaseHandler extends SQLiteOpenHelper {
     public int updateContact(Contact contact) {
         SQLiteDatabase db = this.getWritableDatabase();
 
-        ContentValues values = new ContentValues();
-        values.put(URI, contact.getUri().toString());
-        values.put(DAYS_TO_CONTACT, contact.getDaysToContact().getDays());
-        values.put(LAST_CONTACTED, contact.getLastContacted().toString());
+        ContentValues values = contactToContentValues(contact);
 
         // updating row
         return db.update(TABLE_CONTACTS, values, URI + " = ?",
@@ -162,5 +163,14 @@ public class DatabaseHandler extends SQLiteOpenHelper {
         db.delete(TABLE_CONTACTS, URI + " = ?",
                 new String[] { contact.getUri().toString() });
         db.close();
+    }
+
+    private ContentValues contactToContentValues(Contact contact) {
+        ContentValues values = new ContentValues();
+        values.put(URI, contact.getUri().toString());
+        values.put(DAYS_TO_CONTACT, contact.getDaysToContact().getDays());
+        values.put(LAST_CONTACTED, contact.getLastContacted().toString());
+        values.put(NOTES, contact.getNotes());
+        return values;
     }
 }

@@ -27,6 +27,7 @@ public class Contact {
     Days daysToContact;
     LocalDate lastContacted;
     Double score;
+    String notes;
 
     long lastUpdated;
 
@@ -171,6 +172,14 @@ public class Contact {
             return Double.valueOf(days) / this.daysToContact.getDays();
         }
         return null;
+    }
+
+    public String getNotes() {
+        return notes;
+    }
+
+    public void setNotes(String notes) {
+        this.notes = notes;
     }
 
     @Override

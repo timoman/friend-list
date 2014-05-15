@@ -110,6 +110,9 @@ public class MainActivity extends ListActivity {
                                     public void onClick(DialogInterface dialog, int selectedIndex) {
                                         switch (selectedIndex) {
                                             case 0:
+                                                editNotes(position);
+                                                break;
+                                            case 1:
                                                 editContactFrequency(position);
                                                 break;
                                             default:
@@ -153,6 +156,30 @@ public class MainActivity extends ListActivity {
         addCancelButton(datePicker);
         datePicker.getDatePicker().setCalendarViewShown(true);
         datePicker.show();
+    }
+
+    private void editNotes(int position) {
+        ContactAdapter adapter = getContactAdapter();
+        final Contact contact = adapter.getItem(position);
+
+        LayoutInflater inflater = getLayoutInflater();
+        final View view = inflater.inflate(R.layout.notes_layout, null);
+        final EditText notesText = (EditText) view.findViewById(R.id.notes);
+        notesText.setText(contact.getNotes());
+        AlertDialog dialog = new AlertDialog.Builder(this)
+                .setView(view)
+                .setPositiveButton(getResources().getText(R.string.save), new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(DialogInterface dialog, int id) {
+                        contact.setNotes(notesText.getText().toString());
+                        getContactAdapter().update(contact);
+                        refreshAdapter();
+                    }
+                })
+                .setTitle("Notes")
+                .create();
+        addCancelButton(dialog);
+        dialog.show();
     }
 
     private void editContactFrequency(int position) {
