@@ -157,10 +157,16 @@ public class Contact {
         try {
             while (nameCur.moveToNext()) {
                 displayName = nameCur.getString(nameCur.getColumnIndex(ContactsContract.CommonDataKinds.StructuredName.DISPLAY_NAME));
+                if (displayName != null) {
+                    break;
+                }
             }
         }
         finally {
             nameCur.close();
+        }
+        if (displayName == null) {
+            displayName = "NAME ERROR: old name was " + this.displayName;
         }
         return displayName;
     }
