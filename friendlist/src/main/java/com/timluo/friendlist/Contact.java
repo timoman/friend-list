@@ -130,12 +130,20 @@ public class Contact {
                 lastUpdated =
                         cursor.getString(cursor.getColumnIndex(
                                 ContactsContract.CommonDataKinds.StructuredName.CONTACT_LAST_UPDATED_TIMESTAMP));
+                if (lastUpdated != null) {
+                    break;
+                }
             }
         }
         finally {
             cursor.close();
         }
-        return Long.valueOf(lastUpdated);
+
+        if (lastUpdated != null) {
+            return Long.valueOf(lastUpdated);
+        } else {
+            return 0L;
+        }
     }
 
     private String refreshDisplayName(ContentResolver contentResolver) {
