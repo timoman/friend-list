@@ -20,6 +20,16 @@ android {
         minSdkVersion 15
         targetSdkVersion 19
     }
+
+    productFlavors {
+        production {
+            packageName "com.timluo.friendlist.stable"
+        }
+
+        staging {
+            packageName "com.timluo.friendlist"
+        }
+    }
 }
 
 dependencies {
