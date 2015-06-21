@@ -3,10 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/friendlist.iml" filepath="$PROJECT_DIR$/friendlist.iml" />
-      <module fileurl="file://$PROJECT_DIR$/friendlist.iml" filepath="$PROJECT_DIR$/friendlist.iml" />
-      <module fileurl="file://$PROJECT_DIR$/friendlist/friendlist-friendlist.iml" filepath="$PROJECT_DIR$/friendlist/friendlist-friendlist.iml" />
       <module fileurl="file://$PROJECT_DIR$/friendlist/friendlist-friendlist.iml" filepath="$PROJECT_DIR$/friendlist/friendlist-friendlist.iml" />
     </modules>
   </component>
 </project>
-
